@@ -16,7 +16,13 @@ async function main() {
       email: "admin@empresa.com",
       senha: hash,
       admin: true,
-      permissoes: {},
+      ativo: true,
+      permissoes: {
+        editar_base_dados: true,
+        visualizar_relatorios: true,
+        editar_campanhas: true,
+        editar_integracoes: true,
+      },
     },
   });
 

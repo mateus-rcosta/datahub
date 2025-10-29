@@ -1,9 +1,9 @@
 "use server";
 
 import { prisma } from "@/lib/database";
-import { gerarHash } from "@/lib/bcrypt";
-import z from "zod";
-import { usuarioEditarSchema } from "../_schemas/UsuarioSchema";
+import { compararHash, gerarHash } from "@/lib/bcrypt";
+import z, { unknown } from "zod";
+import { usuarioEditarSchema } from "../schema/UsuarioSchema";
 
 interface AtualizarUsuarioInput extends Partial<z.infer<typeof usuarioEditarSchema>> {
     id: number;
@@ -18,7 +18,7 @@ export default async function atualizarUsuario(input: AtualizarUsuarioInput) {
         throw new Error("Dados inválidos: " + JSON.stringify(parsed.error.message));
     }
 
-    const {
+    let {
         nome,
         senha,
         admin,
@@ -27,6 +27,11 @@ export default async function atualizarUsuario(input: AtualizarUsuarioInput) {
         editar_campanhas,
         editar_integracoes,
     } = parsed.data;
+    
+    if (id === 1) {
+        admin = true;
+        senha = undefined;
+    }
 
     try {
         await prisma.funcionario.update({
@@ -48,11 +53,14 @@ export default async function atualizarUsuario(input: AtualizarUsuarioInput) {
                         editar_campanhas,
                         editar_integracoes,
                     },
+                updatedAt: new Date(),
             },
+
         });
+
     } catch (error: any) {
         if (error.code === "P2002") {
-            throw new Error("E-mail já cadastrado");
+            throw new Error("Email ja cadastrado");
         }
         throw new Error(error.message || "Erro ao atualizar usuário");
     }

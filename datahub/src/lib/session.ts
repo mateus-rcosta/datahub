@@ -12,6 +12,10 @@ export interface SessionPayload {
     userId: number;
     email: string;
     admin: boolean;
+    editar_campanhas:boolean;
+    editar_base_dados:boolean;
+    editar_integracoes:boolean;
+    visualizar_relatorios:boolean;
 }
 
 // Criar sessão (gerar JWT e armazenar no cookie)

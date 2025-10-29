@@ -1,18 +1,20 @@
 "use server";
 
 import { prisma } from "@/lib/database";
-import { toast } from "sonner";
 
 export default async function deletarUsuario(id: number) {
   try {
-    if(id === 1){
+    if (id === 1) {
       throw new Error("Usuário ADMIN não pode ser excluído");
     }
-    await prisma.funcionario.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+    const data = Date.now();
+    await prisma.$executeRawUnsafe(`
+      UPDATE public.funcionario
+      SET email = CONCAT('deleted_${data}_', email), "deletedAt" = NOW()
+      WHERE id = ${id} AND "deletedAt" IS NULL AND id != 1;
+    `);
   } catch (error: any) {
     throw new Error(error.message || "Erro ao deletar usuário");
   }
 }
+

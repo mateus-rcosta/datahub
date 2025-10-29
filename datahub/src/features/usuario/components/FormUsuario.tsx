@@ -1,0 +1,191 @@
+"use client";
+
+import { useEffect, useMemo } from "react";
+import { useForm, useWatch, useFormState } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Database, File, Loader2, Send, Settings, Shield } from "lucide-react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+
+import atualizarUsuario from "@/features/usuario/action/atualizarUsuario";
+import criarUsuario from "@/features/usuario/action/criarUsuario";
+import { usuarioEditarSchema, usuarioSchema } from "@/features/usuario/schema/UsuarioSchema";
+import { SwitchInput, TextInput } from "@/components/form/form";
+import { Button } from "@/components/ui/button";
+import { FieldGroup, FieldSet } from "@/components/ui/field";
+import { Usuario } from "../type/types";
+import z from "zod";
+
+interface CardUsuarioProps {
+  usuario?: Usuario;
+  onClose: () => void;
+}
+
+export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof usuarioEditarSchema>>({
+    resolver: zodResolver(usuario ? usuarioEditarSchema : usuarioSchema),
+    mode: "onChange",
+    defaultValues: {
+      nome: usuario?.nome || "",
+      email: usuario?.email || "",
+      senha: "",
+      admin: usuario?.admin || false,
+      editar_base_dados: usuario?.permissoes?.editar_base_dados || false,
+      visualizar_relatorios: usuario?.permissoes?.visualizar_relatorios || false,
+      editar_campanhas: usuario?.permissoes?.editar_campanhas || false,
+      editar_integracoes: usuario?.permissoes?.editar_integracoes || false,
+    },
+  });
+
+  const admin = useWatch({ control: form.control, name: "admin" });
+  const { isDirty, isValid } = useFormState({ control: form.control });
+
+  useEffect(() => {
+    if (admin) {
+      form.setValue("editar_base_dados", true);
+      form.setValue("editar_campanhas", true);
+      form.setValue("editar_integracoes", true);
+      form.setValue("visualizar_relatorios", true);
+    }
+  }, [admin, form]);
+
+  const permissoesSistema = useMemo(
+    () => ({
+      editar_base_dados: {
+        id: "editar_base_dados",
+        nome: "Editar base de dados",
+        descricao: "Permite criar, editar e excluir registros da base de dados.",
+        icon: <Database className="h-5 w-5 text-blue-600" />,
+      },
+      visualizar_relatorios: {
+        id: "visualizar_relatorios",
+        nome: "Visualizar relatórios",
+        descricao: "Permite acessar e gerar relatórios do sistema.",
+        icon: <File className="h-5 w-5 text-green-600" />,
+      },
+      editar_campanhas: {
+        id: "editar_campanhas",
+        nome: "Editar campanhas",
+        descricao: "Permite criar, editar e excluir campanhas.",
+        icon: <Send className="h-5 w-5 text-purple-600" />,
+      },
+      editar_integracoes: {
+        id: "editar_integracoes",
+        nome: "Editar integrações",
+        descricao: "Permite configurar e gerenciar integrações com sistemas externos.",
+        icon: <Settings className="h-5 w-8 text-orange-600" />,
+      },
+    }),
+    []
+  );
+
+  // Mutations
+  const criarMutation = useMutation({
+    mutationFn: (data: z.infer<typeof usuarioSchema>) => criarUsuario(data),
+    onSuccess: () => {
+      toast.success("Usuário criado com sucesso.");
+      queryClient.invalidateQueries({ queryKey: ["usuarios"] });
+      onClose();
+    },
+    onError: (err: unknown) => {
+      if (err instanceof Error) {
+        toast.error(err.message === "Email ja cadastrado" ? "E-mail já cadastrado." : "Erro ao criar usuário.");
+      }
+    },
+  });
+
+  const atualizarMutation = useMutation({
+    mutationFn: (data: z.infer<typeof usuarioEditarSchema>) =>
+      atualizarUsuario({ id: usuario!.id, ...data, senha: data.senha || undefined }),
+    onSuccess: () => {
+      toast.success("Usuário atualizado com sucesso.");
+      queryClient.invalidateQueries({ queryKey: ["usuarios"] });
+      onClose();
+    },
+    onError: (err: unknown) => {
+      if (err instanceof Error) {
+        toast.error(err.message === "Email ja cadastrado" ? "E-mail já cadastrado." : "Erro ao atualizar usuário.");
+      }
+    },
+  });
+
+  const handleSubmit = (data: z.infer<typeof usuarioEditarSchema>) => {
+    if (usuario) {
+      atualizarMutation.mutate(data);
+    } else {
+      criarMutation.mutate(data as Omit<typeof data, "senha"> & { senha: string });
+    }
+  };
+
+  const isSubmitting = criarMutation.isPending || atualizarMutation.isPending;
+
+  return (
+    <form onSubmit={form.handleSubmit(handleSubmit)}>
+      <FieldSet>
+        <div className="flex items-center gap-2">
+          <Shield className="h-5 w-5 text-black" />
+          <h3 className="text-lg font-semibold text-black">Informações Básicas</h3>
+        </div>
+
+        <FieldGroup className="flex-row">
+          <TextInput label="Nome" type="text" name="nome" control={form.control} />
+          <SwitchInput label="Administrador" name="admin" control={form.control} />
+        </FieldGroup>
+
+        <FieldGroup className="flex-row">
+          <TextInput label="E-mail" type="text" name="email" control={form.control} disabled={!!usuario} />
+          <TextInput label="Senha" type="password" name="senha" control={form.control} />
+        </FieldGroup>
+      </FieldSet>
+
+      <FieldSet className="mt-8">
+        <div className="flex justify-between items-center gap-4">
+          <h3 className="text-lg font-semibold text-black">Permissões do Sistema</h3>
+          {admin && (
+            <div className="flex gap-2 bg-primary text-white items-center px-2 pt-0.5 pb-1 rounded-lg">
+              <Shield className="h-5 w-5" />
+              <span>Administrador - Todas as permissões</span>
+            </div>
+          )}
+        </div>
+
+        <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+          {Object.entries(permissoesSistema).map(([key, permissao]) => (
+            <div key={key} className="flex items-center justify-between border rounded-lg p-1 bg-muted shadow-xs">
+              <div className="flex items-center gap-3 p-3">
+                <div className="flex-1 items-start justify-start h-full">{permissao.icon}</div>
+                <SwitchInput
+                  label={permissao.nome}
+                  description={permissao.descricao}
+                  name={permissao.id as keyof z.infer<typeof usuarioEditarSchema>}
+                  control={form.control}
+                  disabled={!!admin}
+                />
+              </div>
+            </div>
+          ))}
+        </FieldGroup>
+      </FieldSet>
+
+      {admin && (
+        <div className="rounded-lg mt-2 p-2 border-2 border-blue-300 bg-blue-200">
+          <p className="text-blue-600">
+            <span className="text-blue-700 font-semibold">Administradores</span> possuem acesso total ao sistema e não podem ter suas permissões individuais modificadas.
+          </p>
+        </div>
+      )}
+
+      <div className="flex gap-2 mt-4">
+        <Button type="button" variant="outline" className="flex-1" onClick={onClose} disabled={isSubmitting}>
+          Cancelar
+        </Button>
+        <Button type="submit" className="flex-1 font-semibold text-lg" disabled={isSubmitting || !isDirty || !isValid}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Salvar
+        </Button>
+      </div>
+    </form>
+  );
+}

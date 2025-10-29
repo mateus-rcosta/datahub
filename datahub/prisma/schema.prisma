@@ -9,11 +9,12 @@ datasource db {
 
 model funcionario {
   id Int @id @default(autoincrement())
-  nome String @db.VarChar(200)
-  email String @db.VarChar(200) @unique
-  senha String @db.VarChar(200)
+  nome String @db.VarChar(120) 
+  email String @db.VarChar(120) @unique
+  senha String @db.VarChar(60)
   permissoes Json? @db.JsonB()
   admin Boolean @db.Boolean @default(false) 
+  ativo Boolean @db.Boolean @default(true)
   createdAt DateTime @db.Timestamptz(3) @default(now())
   updatedAt DateTime? @db.Timestamptz(3) 
   deletedAt DateTime? @db.Timestamptz(3) 

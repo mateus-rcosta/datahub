@@ -1,5 +1,7 @@
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, SidebarTrigger, SidebarRail, useSidebar } from "@/components/ui/sidebar";
+import { useAuth } from "@/features/auth/context/authClientProvider";
 import { Users, Database, FileText, BarChart3, Settings, Send, LogOut, Menu } from "lucide-react";
+import { redirect } from "next/navigation";
 
 interface AppSidebarProps {
     currentPage: string;
@@ -8,16 +10,29 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ currentPage, onNavigate, onLogout }: AppSidebarProps) {
+
+    const user = useAuth();
+    if (user === null) {
+        redirect("/auth/login");
+    }
+
     const menuItems = [
-        { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-        { id: "relatorios", label: "Relatórios", icon: FileText },
-        { id: "base-dados", label: "Base de dados", icon: Database },
-        { id: "campanhas", label: "Campanhas", icon: Send },
-        { id: "integracoes", label: "Integrações", icon: Settings },
-        { id: "usuarios", label: "Usuários", icon: Users },
+        { id: "dashboard", label: "Dashboard", icon: BarChart3, permissao: true },
+        { id: "relatorios", label: "Relatórios", icon: FileText, permissao: user.visualizar_relatorios },
+        { id: "base-dados", label: "Base de dados", icon: Database, permissao: user.editar_base_dados  },
+        { id: "campanhas", label: "Campanhas", icon: Send, permissao: user.editar_campanhas },
+        { id: "integracoes", label: "Integrações", icon: Settings, permissao: user.editar_integracoes },
+        { id: "usuarios", label: "Usuários", icon: Users, permissao: user.admin},
     ];
     
-    const { open, setOpen } = useSidebar();
+    const { toggleSidebar, open } = useSidebar();
+
+    const handleNavigate = (id: string) => {
+        if(open){
+            toggleSidebar();
+        }
+        onNavigate(id);
+    }
 
     return (
         <Sidebar collapsible="icon">
@@ -27,7 +42,7 @@ export function AppSidebar({ currentPage, onNavigate, onLogout }: AppSidebarProp
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton
-                                onClick={() => setOpen(!open)}
+                                onClick={() => toggleSidebar()}
                                 className="flex items-center gap-2 text-white font-medium"
                             >
                                 <Menu className="h-4 w-4" />
@@ -41,13 +56,13 @@ export function AppSidebar({ currentPage, onNavigate, onLogout }: AppSidebarProp
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {menuItems.map((item) => {
+                            {menuItems.filter(item => item.permissao === true).map((item) => {
                                 const Icon = item.icon;
                                 return (
                                     <SidebarMenuItem key={item.id}>
                                         <SidebarMenuButton
                                             isActive={currentPage === item.id}
-                                            onClick={() => onNavigate(item.id)}
+                                            onClick={() => handleNavigate(item.id)}
                                             className="text-white font-medium"
                                         >
                                             <Icon className="h-4 w-4" />

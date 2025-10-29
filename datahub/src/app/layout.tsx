@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Toaster } from "@/components/ui/sonner"
 import "./globals.css";
+import AppProvider from "./provider";
 
 
 export const metadata: Metadata = {
@@ -8,18 +8,16 @@ export const metadata: Metadata = {
   description: "Sistema de gestão de dados da Londrinet.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
+
   return (
     <html lang="pt-br">
       <body
         className={`overflow-hidden antialiased bg-background`}
-      >
-        <Toaster />
-        {children}
+    >
+        <AppProvider>
+          {children}
+        </AppProvider>
       </body>
     </html>
   );

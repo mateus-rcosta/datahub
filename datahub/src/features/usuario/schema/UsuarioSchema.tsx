@@ -6,6 +6,7 @@ export const usuarioSchema = z.object({
   senha: z
     .string()
     .min(8, { message: "A senha deve ter no mínimo 8 caracteres" })
+    .max(50, { message: "A senha deve ter no máximo 50 caracteres" })
     .regex(/[A-Z]/, { message: "A senha deve conter ao menos uma letra maiúscula" })
     .regex(/[a-z]/, { message: "A senha deve conter ao menos uma letra minúscula" })
     .regex(/[0-9]/, { message: "A senha deve conter ao menos um número" }),
@@ -33,7 +34,9 @@ export const usuarioEditarSchema = usuarioSchema
       .string()
       .optional()
       .refine((val) => !val || val.length >= 8, { message: "A senha deve ter no mínimo 8 caracteres" })
+      .refine((val) => !val || val.length <= 51, { message: "A senha deve ter no máximo 50 caracteres" })
       .refine((val) => !val || /[A-Z]/.test(val), { message: "A senha deve conter ao menos uma letra maiúscula" })
       .refine((val) => !val || /[a-z]/.test(val), { message: "A senha deve conter ao menos uma letra minúscula" })
       .refine((val) => !val || /[0-9]/.test(val), { message: "A senha deve conter ao menos um número" }),
+    ativo: z.boolean().optional()
   });

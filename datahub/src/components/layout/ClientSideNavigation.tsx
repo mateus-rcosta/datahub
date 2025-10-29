@@ -1,8 +1,9 @@
 "use client";
 import { AppSidebar } from "@/components/layout/Sidebar";
 import { deleteSession } from "@/lib/session";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, redirect } from "next/navigation";
 import { useEffect, useState } from "react";
+
 
 export function ClientSideNavigation() {
     const router = useRouter();
