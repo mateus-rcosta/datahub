@@ -38,10 +38,13 @@ export default function TabelaUsuario() {
   return (
     <>
 
-      <div className="flex flex-col w-full justify-between  px-6 py-3 gap-4">
+      <div className="flex flex-col w-full justify-between px-6 py-3 gap-4">
         <div className="flex flex-col md:flex-row items-center justify-between">
-          {!isFetching && <div className="flex items-start justify-start text-sm text-muted-foreground px-6 py-3"><Spinner className="size-10" /> </div>}
-          <div className="flex flex-row justify-end gap-2">
+          <div className="flex flex-1">
+            {isFetching && <Spinner className="size-10" />}
+          </div>
+
+          <div className="flex flex-row gap-2">
             <InputUsuario state={pesquisa} useState={setPesquisa} total={total} />
             <CardUsuario />
           </div>
