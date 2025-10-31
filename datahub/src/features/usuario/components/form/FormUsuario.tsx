@@ -10,15 +10,19 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import atualizarUsuario from "@/features/usuario/action/atualizarUsuario";
 import criarUsuario from "@/features/usuario/action/criarUsuario";
 import { usuarioEditarSchema, usuarioSchema } from "@/features/usuario/schema/UsuarioSchema";
-import { SwitchInput, TextInput } from "@/components/form/form";
 import { Button } from "@/components/ui/button";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
-import { Usuario } from "../type/types";
+import { Usuario } from "../../type/types";
 import z from "zod";
+import { SwitchInput, TextInput } from "@/components/layout/form/form";
 
 interface CardUsuarioProps {
   usuario?: Usuario;
   onClose: () => void;
+}
+
+const inputs = {
+  classname: "bg-white",
 }
 
 export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
@@ -130,13 +134,13 @@ export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
         </div>
 
         <FieldGroup className="flex-row">
-          <TextInput label="Nome" type="text" name="nome" control={form.control} />
+          <TextInput className={inputs.classname} label="Nome" type="text" name="nome" control={form.control} />
           <SwitchInput label="Administrador" name="admin" control={form.control} />
         </FieldGroup>
 
         <FieldGroup className="flex-row">
-          <TextInput label="E-mail" type="text" name="email" control={form.control} disabled={!!usuario} />
-          <TextInput label="Senha" type="password" name="senha" control={form.control} />
+          <TextInput className={inputs.classname} label="E-mail" type="text" name="email" control={form.control} disabled={!!usuario} />
+          <TextInput className={inputs.classname} label="Senha" type="password" name="senha" control={form.control} />
         </FieldGroup>
       </FieldSet>
 
@@ -153,7 +157,7 @@ export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
 
         <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           {Object.entries(permissoesSistema).map(([key, permissao]) => (
-            <div key={key} className="flex items-center justify-between border rounded-lg p-1 bg-muted shadow-xs">
+            <div key={key} className="flex items-center justify-between border rounded-lg p-1 shadow-xs bg-white">
               <div className="flex items-center gap-3 p-3">
                 <div className="flex-1 items-start justify-start h-full">{permissao.icon}</div>
                 <SwitchInput
@@ -178,7 +182,7 @@ export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
       )}
 
       <div className="flex gap-2 mt-4">
-        <Button type="button" variant="outline" className="flex-1" onClick={onClose} disabled={isSubmitting}>
+        <Button type="button" variant="outline" className="flex-1 bg-white" onClick={onClose} disabled={isSubmitting}>
           Cancelar
         </Button>
         <Button type="submit" className="flex-1 font-semibold text-lg" disabled={isSubmitting || !isDirty || !isValid}>

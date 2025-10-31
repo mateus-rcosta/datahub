@@ -4,7 +4,7 @@ export interface Usuario {
     id: number;
     nome: string;
     email: string;
-    senha: string | null;
+    senha?: string;
     admin: boolean;
     ativo: boolean;
     permissoes: {
@@ -13,7 +13,12 @@ export interface Usuario {
         editar_campanhas: boolean;
         editar_integracoes: boolean;
     } & JsonValue;
-    createdAt: Date | null;
+    createdAt: Date;
     updatedAt: Date | null;
 }
 
+export interface RetornarUsuarios {
+  pesquisa: string;
+  page?: number;
+  limit?: number;
+}

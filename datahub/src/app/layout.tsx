@@ -13,7 +13,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="pt-br">
       <body
-        className={`overflow-hidden antialiased bg-background`}
+        className={`antialiased bg-background`}
     >
         <AppProvider>
           {children}

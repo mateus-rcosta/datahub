@@ -1,9 +1,10 @@
 import { Controller, ControllerProps, FieldPath, FieldValues, UseFormProps } from "react-hook-form";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "../../ui/field";
+import { Input } from "../../ui/input";
 import { ComponentPropsWithoutRef } from "react";
-import { Switch } from "../ui/switch";
+import { Switch } from "../../ui/switch";
 import * as SwitchPrimitive from "@radix-ui/react-switch"
+import { cn } from "@/lib/utils";
 
 
 type BaseProps<
@@ -13,6 +14,7 @@ type BaseProps<
     {
         label: string;
         description?: string;
+        classname?: string;
     }
 
 type TextInputProps<
@@ -41,7 +43,7 @@ export function TextInput<T extends FieldValues = FieldValues, U extends FieldPa
             render={({ field, fieldState }) => (
                 <Field>
                     <FieldLabel htmlFor={field.name} className="text-lg">{label}</FieldLabel>
-                    <Input {...field} {...rest} id={field.name} aria-invalid={fieldState.invalid} placeholder={label} className="text-md"/>
+                    <Input {...field} {...rest} id={field.name} aria-invalid={fieldState.invalid} placeholder={label} className={cn("w-full", rest.className)} />
                     {fieldState.error && <FieldError errors={[fieldState.error]} />}
                 </Field>
 
@@ -72,8 +74,8 @@ export function SwitchInput<T extends FieldValues = FieldValues, U extends Field
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         aria-invalid={fieldState.invalid}
+                        className={cn("max-w-8 data-[state=unchecked]:bg-black", rest.className)}
                         {...rest}
-                        className="max-w-8 data-[state=unchecked]:bg-black"
                     />
                 </Field>
             )}

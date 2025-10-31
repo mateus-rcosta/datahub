@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import deletarUsuario from "../action/deletarUsuario";
+import deletarUsuario from "../../action/deletarUsuario";
 
 interface ConfirmDeleteProps {
   itemName?: string;
@@ -38,8 +38,8 @@ export default function ConfirmDelete({ itemName = "usuário", id }: ConfirmDele
 
   return (
     <>
-      <Button variant="destructive" onClick={() => setOpen(true)}>
-        <Trash2 className="h-4 w-4" />
+      <Button variant="ghost" onClick={() => setOpen(true)}>
+        <Trash2 className="h-6 w-auto text-red-500" />
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

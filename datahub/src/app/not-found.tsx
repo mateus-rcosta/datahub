@@ -1,13 +1,10 @@
-"use client";
 
-import { useAuth } from "@/features/auth/context/authClientProvider";
+import { verifySession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
-export default function page () {
-    const payload = useAuth();
-    if(payload) {
-        redirect("/dashboard");
-    }
+export default async function page () {
+    const user = await verifySession();
+    if (!user) return redirect("/auth/login");
     
-    redirect("/auth/login");
+    redirect("/dashboard");
 }

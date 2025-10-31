@@ -15,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <AuthProvider session={user}>
                 <SidebarProvider>
                     <ClientSideNavigation />
-                    <main className="w-full h-full">
+                    <main className="w-full h-full overflow-y-auto overflow-x-hidden">
                         <div className="sticky top-0 z-10 pt-2 pl-2 lg:hidden">
                             <SidebarTrigger />
                         </div>

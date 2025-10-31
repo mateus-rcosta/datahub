@@ -1,25 +1,38 @@
 "use server";
-
 import { prisma } from "@/lib/database";
-import { Usuario } from "../type/types";
+import { RetornarUsuarios, Usuario } from "../type/types";
 
-export default async function retornarUsuarios(): Promise<Usuario[]> {
-  const usuarios = await prisma.funcionario.findMany({
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-      admin: true,
-      ativo: true,
-      permissoes: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    where: { deletedAt: null },
-    orderBy: { createdAt: "desc"}
-  });
+export default async function retornarUsuarios({ pesquisa, page = 1, limit = 10 }: RetornarUsuarios): Promise<ApiPagination<Usuario>> {
+  
+  const take = limit;
+  const skip = (page - 1) * limit;
 
-  return usuarios.map(u => {
+  const [usuarios, total] = await Promise.all([
+    prisma.funcionario.findMany({
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        admin: true,
+        ativo: true,
+        permissoes: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      skip,
+      take,
+      where: { deletedAt: null, nome: { contains: pesquisa, mode: "insensitive" } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.funcionario.count({
+      where: { deletedAt: null, nome: { contains: pesquisa, mode: "insensitive" } },
+    }),
+  ]);
+
+  const hasNext = page * limit < total;
+  const hasPrevious = page > 1;
+
+  const usuariosFormatted = usuarios.map(u => {
     const permissoesObj = (u.permissoes as Partial<Usuario["permissoes"]>) ?? {};
 
     return {
@@ -29,7 +42,17 @@ export default async function retornarUsuarios(): Promise<Usuario[]> {
         visualizar_relatorios: !!permissoesObj.visualizar_relatorios,
         editar_campanhas: !!permissoesObj.editar_campanhas,
         editar_integracoes: !!permissoesObj.editar_integracoes,
-      }
+      },
     };
   });
+
+  return {
+    data: usuariosFormatted,
+    hasNext,
+    hasPrevious,
+    limit: limit,
+    page: page,
+    total: total,
+  };
 }
+

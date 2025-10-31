@@ -8,11 +8,11 @@ interface CabecalhoProps {
 
 export function Cabecalho({ titulo, descricao, acoes }: CabecalhoProps) {
     return (
-        <div className="flex justify-between items-start px-6 py-3 border-b border-gray-300 shadow-md gap-4">
+        <div className="flex justify-between items-start px-6 py-3 border-b  gap-4">
             <div className="flex flex-col">
                 <h1 className="text-2xl font-bold">{titulo}</h1>
                 {descricao && (
-                    <p className="text-sm text-gray-800">{descricao}</p>
+                    <p className="text-md text-gray-800">{descricao}</p>
                 )}
             </div>
             {acoes && (
