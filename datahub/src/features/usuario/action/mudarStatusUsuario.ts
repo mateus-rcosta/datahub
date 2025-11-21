@@ -13,7 +13,7 @@ export default async function mudarStatusUsuario(id: number) {
       SET ativo = NOT ativo, "updatedAt" = NOW()
       WHERE id = ${id};
     `;
-  } catch (error: any) {
-    throw new Error(error.message || "Erro ao mudar status de acesso do usuário.");
+  } catch (error: unknown) {
+    throw new Error("Erro ao mudar status de acesso do usuário.");
   }
 }

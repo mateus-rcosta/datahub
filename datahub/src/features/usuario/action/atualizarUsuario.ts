@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/database";
-import { compararHash, gerarHash } from "@/lib/bcrypt";
-import z, { unknown } from "zod";
+import { gerarHash } from "@/lib/bcrypt";
+import z from "zod";
 import { usuarioEditarSchema } from "../schema/UsuarioSchema";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { Prisma } from "@prisma/client";
 
 interface AtualizarUsuarioInput extends Partial<z.infer<typeof usuarioEditarSchema>> {
     id: number;
@@ -59,9 +61,13 @@ export default async function atualizarUsuario(input: AtualizarUsuarioInput) {
         });
 
     } catch (error: any) {
-        if (error.code === "P2002") {
-            throw new Error("Email ja cadastrado");
-        }
-        throw new Error(error.message || "Erro ao atualizar usuário");
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+              if (error.code === "P2002") {
+                throw new Error("E-mail ja cadastrado");
+              }
+            }
+        
+        
+            throw new Error("Erro ao atualizar usuário.");
     }
 }

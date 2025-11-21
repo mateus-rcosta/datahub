@@ -13,8 +13,8 @@ export default async function deletarUsuario(id: number) {
       SET email = CONCAT('deleted_${data}_', email), "deletedAt" = NOW()
       WHERE id = ${id} AND "deletedAt" IS NULL AND id != 1;
     `);
-  } catch (error: any) {
-    throw new Error(error.message || "Erro ao deletar usuário");
+  } catch (error: unknown) {
+    throw new Error("Erro ao deletar usuário");
   }
 }
 

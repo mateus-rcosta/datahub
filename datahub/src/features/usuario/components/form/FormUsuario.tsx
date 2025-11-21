@@ -95,7 +95,7 @@ export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
     },
     onError: (err: unknown) => {
       if (err instanceof Error) {
-        toast.error(err.message === "Email ja cadastrado" ? "E-mail já cadastrado." : "Erro ao criar usuário.");
+        toast.error(err.message === "E-mail ja cadastrado" ? "E-mail já cadastrado." : "Erro ao criar usuário.");
       }
     },
   });

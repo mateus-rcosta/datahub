@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/database"
 import { usuarioSchema } from "../schema/UsuarioSchema"
 import { gerarHash } from "@/lib/bcrypt"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
+import { Prisma } from "@prisma/client"
 
 export default async function criarUsuario(input: unknown) {
   // validação com Zod
@@ -39,10 +41,14 @@ export default async function criarUsuario(input: unknown) {
         },
       },
     })
-  } catch (error: any) {
-    if (error.code === "P2002") {
-      throw new Error("E-mail ja cadastrado");
+  } catch (error: unknown) {
+    console.log(error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        throw new Error("E-mail ja cadastrado");
+      }
     }
+
 
     throw new Error("Erro ao criar usuário");
   }

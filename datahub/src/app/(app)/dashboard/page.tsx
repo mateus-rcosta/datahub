@@ -4,7 +4,7 @@ export default function DashboardPage() {
     return (
         <>
             
-            <h1>olá</h1>
+            <h1></h1>
         </>
     );
 };

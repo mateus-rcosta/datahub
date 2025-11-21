@@ -12,12 +12,17 @@ import z from "zod";
 import { formSchema } from "./_schemas/schema";
 import { loginAction } from "./_actions/auth";
 import { Loader2 } from "lucide-react";
+import { AuthErrorType } from "../../_exception/AuthError";
+
+const ERROR_MESSAGES = {
+    [AuthErrorType.CREDENCIAIS_INVALIDAS]: "E-mail ou senha incorretos.",
+    [AuthErrorType.ERRO_INTERNO]: "Erro interno do servidor. Tente novamente.",
+} as const;
 
 export default function PageLogin() {
-    const [erro, setErro] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-
+    
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -28,13 +33,28 @@ export default function PageLogin() {
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         setIsLoading(true);
-        setErro("");
-
+        
         try {
-            await loginAction(data.email, data.senha);
+            const result = await loginAction(data.email, data.senha);
+            
+            if (!result.success) {
+                const errorMessage = result.error 
+                    ? ERROR_MESSAGES[result.error] 
+                    : "Erro desconhecido.";
+                
+                form.setError("root", { 
+                    type: "manual",
+                    message: errorMessage 
+                });
+                return;
+            }
+            
             router.push("/dashboard");
-        } catch (error: any) {
-            setErro(error.message || "Erro ao fazer login");
+        } catch (error) {
+            form.setError("root", { 
+                type: "manual",
+                message: "Erro de comunicação com o servidor." 
+            });
         } finally {
             setIsLoading(false);
         }
@@ -45,7 +65,6 @@ export default function PageLogin() {
             <CardHeader className="flex flex-col items-center mb-2">
                 <Image src="/logo/logo.svg" alt="Logo" width={100} height={100} priority />
             </CardHeader>
-
             <CardContent>
                 <Form {...form}>
                     <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
@@ -69,7 +88,6 @@ export default function PageLogin() {
                                 </FormItem>
                             )}
                         />
-
                         <FormField
                             control={form.control}
                             name="senha"
@@ -90,12 +108,19 @@ export default function PageLogin() {
                                 </FormItem>
                             )}
                         />
-
-                        {erro && (
-                            <span className="text-secondary font-semibold text-lg">{erro}</span>
+                        
+                        {form.formState.errors.root && (
+                            <div className="text-red-600 font-semibold text-sm rounded-md">
+                                {form.formState.errors.root.message}
+                            </div>
                         )}
-
-                        <Button type="submit" className="bg-primary hover:bg-primary/90 w-full text-xl mt-2" size="lg" disabled={isLoading}>
+                        
+                        <Button 
+                            type="submit" 
+                            className="bg-primary hover:bg-primary/90 w-full text-xl mt-2" 
+                            size="lg" 
+                            disabled={isLoading}
+                        >
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
