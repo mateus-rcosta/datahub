@@ -8,17 +8,20 @@ import { retornaUsuariosQueryOptions } from "../../service/queryOptions";
 import { InputUsuario } from "../form/InputUsuario";
 import CardUsuario from "../card/CardUsuario";
 import { Spinner } from "@/components/ui/spinner"
+import { Usuario } from "../../type/types";
+import { useDebounce } from 'use-debounce';
 
 export default function TabelaUsuario() {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
+  const [pesquisaDebouncing] = useDebounce(pesquisa, 500);
 
-  const options = retornaUsuariosQueryOptions({ pesquisa, page, limit });
+  const options = retornaUsuariosQueryOptions({ pesquisa: pesquisaDebouncing, page, limit });
   const { data: usuarios, isFetching } = useQuery(options);
 
   // guarda o último conjunto de dados válidos
-  const prevDataRef = useRef<any[] | null>(null);
+  const prevDataRef = useRef<Usuario[] | null>(null);
   const prevTotalRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -29,6 +32,8 @@ export default function TabelaUsuario() {
       prevTotalRef.current = usuarios.total;
     }
   }, [usuarios]);
+
+
 
   // mostra os dados atuais, ou os anteriores se estiver carregando e dados atuais não existirem
   const displayedData = usuarios?.data ?? prevDataRef.current ?? [];

@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import { createSession } from "@/lib/session";
 import { prisma } from "@/lib/database";
 import { z } from "zod";
-import { redirect } from "next/navigation";
 import { AuthError, AuthErrorType } from "@/app/(nao_autenticado)/_exception/AuthError";
 
 const PermissoesSchema = z.object({

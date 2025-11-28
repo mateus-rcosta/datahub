@@ -1,11 +1,23 @@
 "use server";
 
 import { prisma } from "@/lib/database";
+import { verifySession } from "@/lib/session";
+import { UserError, UserErrorType } from "../exceptions/UserError";
+import { SessionError, SessionErrorType } from "@/lib/SessionError";
+
 
 export default async function mudarStatusUsuario(id: number) {
   try {
+    const user = await verifySession().then((payload) => payload?.userId);
+
+    if (!user) throw new SessionError(SessionErrorType.USUARIO_NAO_LOGADO, "Usuário não autenticado.");
+
     if (id === 1) {
-      throw new Error("Usuário ADMIN não pode ser inativo");
+      throw new UserError(UserErrorType.ADMIN_NAO_PODE_SER_ALTERADO, "Usuário admin não pode ser alterado.");
+    }
+
+    if (id === user) {
+      throw new UserError(UserErrorType.USUARIO_NAO_PODE_SE_EXCLUIR, "Usuário autenticado nao pode ser deletado.");
     }
 
     await prisma.$executeRaw`
@@ -14,6 +26,12 @@ export default async function mudarStatusUsuario(id: number) {
       WHERE id = ${id};
     `;
   } catch (error: unknown) {
-    throw new Error("Erro ao mudar status de acesso do usuário.");
+    if (error instanceof UserError || error instanceof SessionError) {
+      throw error;
+    }
+    throw new Error("Erro ao deletar usuário");
   }
 }
+
+
+

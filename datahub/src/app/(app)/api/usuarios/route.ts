@@ -1,4 +1,7 @@
+import criarUsuario from '@/features/usuario/action/criarUsuario';
 import retornarUsuarios from '@/features/usuario/action/retornarUsuarios';
+import { UserError, UserErrorType } from '@/features/usuario/exceptions/UserError';
+import { verifySession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -32,4 +35,48 @@ export async function GET(request: NextRequest) {
         JSON.stringify({ data: usuarios.data, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),
         { headers: { 'Content-Type': 'application/json' }, status: 200 },
     );
+}
+
+export async function POST(request: NextRequest) {
+    // const isAdmin = await verifySession().then((payload) => payload?.admin).catch(() => false);
+    // if (!isAdmin) {
+    //     return new NextResponse(null, { headers: { 'Content-Type': 'application/json' }, status: 403 });
+    // }
+
+    try {
+        await criarUsuario(await request.json());
+        return new NextResponse(null, { headers: { 'Content-Type': 'application/json' }, status: 201 });
+
+    } catch (error: unknown) {
+        if (error instanceof UserError) {
+            if (error.code === UserErrorType.DADOS_INVALIDOS) {
+                return NextResponse.json(
+                    {
+                        message: error.message,
+                        validacao: error.validacao,
+                        code: error.code,
+                    },
+                    { headers: { 'Content-Type': 'application/json' }, status: 400 },
+                )
+            }
+
+            if (error.code === UserErrorType.EMAIL_EM_USO) {
+                return NextResponse.json(
+                    {
+                        message: error.message,
+                        code: error.code,
+                    },
+                    { headers: { 'Content-Type': 'application/json' }, status: 400 },
+                )
+            }
+        }
+
+        return NextResponse.json(
+            {
+                message: "Erro ao criar o usuário.",
+                code: "ERROR",
+            },
+            { headers: { 'Content-Type': 'application/json' }, status: 500 },
+        )
+    }
 }

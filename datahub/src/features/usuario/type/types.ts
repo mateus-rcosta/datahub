@@ -1,4 +1,4 @@
-import { JsonValue } from "@prisma/client/runtime/library";
+import { JsonValue } from "@prisma/client/runtime/client";
 
 export interface Usuario {
     id: number;
@@ -21,4 +21,15 @@ export interface RetornarUsuarios {
   pesquisa: string;
   page?: number;
   limit?: number;
+}
+
+export interface CriarUsuarioInput {
+  nome: string;
+  email: string;
+  senha: string;
+  admin?: boolean;
+  editar_base_dados?: boolean;
+  visualizar_relatorios?: boolean;
+  editar_campanhas?: boolean;
+  editar_integracoes?: boolean;
 }

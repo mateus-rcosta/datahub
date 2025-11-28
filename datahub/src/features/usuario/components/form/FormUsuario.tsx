@@ -8,13 +8,14 @@ import { Database, File, Loader2, Send, Settings, Shield } from "lucide-react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 import atualizarUsuario from "@/features/usuario/action/atualizarUsuario";
-import criarUsuario from "@/features/usuario/action/criarUsuario";
 import { usuarioEditarSchema, usuarioSchema } from "@/features/usuario/schema/UsuarioSchema";
 import { Button } from "@/components/ui/button";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { Usuario } from "../../type/types";
 import z from "zod";
 import { SwitchInput, TextInput } from "@/components/layout/form/form";
+import { useCreateUsuario } from "../../api/createUsuario";
+import { ApiFalha, ApiSuccesso } from "@/types/Api";
 
 interface CardUsuarioProps {
   usuario?: Usuario;
@@ -43,6 +44,7 @@ export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
     },
   });
 
+  const { setError } = form;
   const admin = useWatch({ control: form.control, name: "admin" });
   const { isDirty, isValid } = useFormState({ control: form.control });
 
@@ -85,21 +87,10 @@ export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
     []
   );
 
-  // Mutations
-  const criarMutation = useMutation({
-    mutationFn: (data: z.infer<typeof usuarioSchema>) => criarUsuario(data),
-    onSuccess: () => {
-      toast.success("Usuário criado com sucesso.");
-      queryClient.invalidateQueries({ queryKey: ["usuarios"] });
-      onClose();
-    },
-    onError: (err: unknown) => {
-      if (err instanceof Error) {
-        toast.error(err.message === "E-mail ja cadastrado" ? "E-mail já cadastrado." : "Erro ao criar usuário.");
-      }
-    },
-  });
 
+  const { createUsuario, isPending: isCreating } = useCreateUsuario();
+
+  // Mutation de atualização 
   const atualizarMutation = useMutation({
     mutationFn: (data: z.infer<typeof usuarioEditarSchema>) =>
       atualizarUsuario({ id: usuario!.id, ...data, senha: data.senha || undefined }),
@@ -115,15 +106,48 @@ export default function FormUsuario({ usuario, onClose }: CardUsuarioProps) {
     },
   });
 
-  const handleSubmit = (data: z.infer<typeof usuarioEditarSchema>) => {
+  // handleSubmit agora async — edição usa a mutation existente, criação usa createUsuario do hook
+  const handleSubmit = async (data: z.infer<typeof usuarioEditarSchema>) => {
     if (usuario) {
       atualizarMutation.mutate(data);
-    } else {
-      criarMutation.mutate(data as Omit<typeof data, "senha"> & { senha: string });
+      return;
+    }
+
+    // criação via hook
+    try {
+      const payload = data as unknown as z.infer<typeof usuarioSchema>;
+      const result: ApiSuccesso<null> | ApiFalha = await createUsuario(payload); 
+
+      if (result?.success) {
+        toast.success("Usuário criado com sucesso.");
+        queryClient.invalidateQueries({ queryKey: ["usuarios"] });
+        onClose();
+        return;
+      }
+
+      // tratar erros de negócio
+      const code = result?.code;
+      if (code === "EMAIL_EM_USO" || result?.message === "E-mail ja cadastrado") {
+        toast.error("E-mail já cadastrado.");
+        return;
+      }
+
+      if (code === "DADOS_INVALIDOS" && result?.validacao) {
+        Object.entries(result.validacao).forEach(([field, mensagens]) => {
+          setError(field as any, { type: "server", message: mensagens.join(", ") });
+        });
+        return;
+      }
+
+      toast.error(result?.message ?? "Erro ao criar usuário.");
+    } catch (err) {
+      // por segurança: seu hook não deve throw, mas tratamos caso aconteça
+      console.error(err);
+      toast.error("Erro ao criar usuário.");
     }
   };
 
-  const isSubmitting = criarMutation.isPending || atualizarMutation.isPending;
+  const isSubmitting = isCreating || atualizarMutation.isPending;
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)}>

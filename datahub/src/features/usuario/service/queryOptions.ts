@@ -1,6 +1,4 @@
-import { RetornarUsuarios } from "../type/types";
-
-
+import { RetornarUsuarios, Usuario } from "../type/types";
 
 export function retornaUsuariosQueryOptions({ pesquisa, page, limit }: RetornarUsuarios) {
     const isServer = typeof window === "undefined";
@@ -23,7 +21,7 @@ export function retornaUsuariosQueryOptions({ pesquisa, page, limit }: RetornarU
                 const text = await res.text();
                 throw new Error(`Erro ao buscar usuários: ${res.status} ${text}`);
             }
-            return res.json();
+            return res.json() as Promise<ApiPagination<Usuario>>;
         },
         keepPreviousData: true,
         refetchOnWindowFocus: true,
