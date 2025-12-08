@@ -1,16 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Usuario } from "../../type/types";
 import { ArrowUpDown, Database, File, Send, Settings, Shield, User } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import CardUsuario from "../card/CardUsuario";
 import ConfirmDelete from "../card/CardDeletaUsuario";
-import { Button } from "@/components/ui/button";
-import mudarStatusUsuario from "../../action/mudarStatusUsuario";
-import { useQueryClient } from "@tanstack/react-query";
 import SwitchUsuario from "../form/SwitchUsuario";
+import { Usuario } from "@/types/types";
 
 
 const permissoes = [
@@ -18,25 +14,25 @@ const permissoes = [
         key: "editar_base_dados",
         label: "Editar base de dados",
         icon: Database,
-        className: "h-full text-blue-600",
+        className: "h-full text-black",
     },
     {
         key: "editar_campanhas",
         label: "Editar campanhas",
         icon: File,
-        className: "h-full text-green-600",
+        className: "h-full text-black",
     },
     {
         key: "editar_integracoes",
         label: "Editar integrações",
         icon: Send,
-        className: "h-full text-purple-600",
+        className: "h-full text-black",
     },
     {
         key: "visualizar_relatorios",
         label: "Visualizar relatórios",
         icon: Settings,
-        className: "h-full text-orange-600",
+        className: "h-full text-black",
     },
 ];
 
@@ -52,7 +48,7 @@ export const columns: ColumnDef<Usuario>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <span className="flex justify-center">{row.original.id}</span>,
+        cell: ({ row }) => <span className="flex justify-center text-black font-semibold">{row.original.id}</span>,
     },
     {
         accessorKey: "nome",
@@ -165,7 +161,7 @@ export const columns: ColumnDef<Usuario>[] = [
         cell: ({ row }) => {
             return (
                 <div className="flex justify-center">
-                    <SwitchUsuario id={row.original.id} ativo={row.original.ativo} />
+                    <SwitchUsuario id={row.original.id} ativo={row.original.ativo} nome={row.original.nome}/>
                 </div>
             )
         }

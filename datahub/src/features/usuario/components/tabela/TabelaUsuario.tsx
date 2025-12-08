@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { DataTable } from "@/components/layout/table/DataTable";
 import { columns } from "./Columns";
 import { useQuery } from "@tanstack/react-query";
-import { retornaUsuariosQueryOptions } from "../../service/queryOptions";
 import { InputUsuario } from "../form/InputUsuario";
 import CardUsuario from "../card/CardUsuario";
 import { Spinner } from "@/components/ui/spinner"
-import { Usuario } from "../../type/types";
 import { useDebounce } from 'use-debounce';
+import { Usuario } from "@/types/types";
+import { getUsuarios } from "../../api/getUsuarios";
 
 export default function TabelaUsuario() {
   const [page, setPage] = useState<number>(1);
@@ -17,7 +17,7 @@ export default function TabelaUsuario() {
   const [pesquisa, setPesquisa] = useState<string>("");
   const [pesquisaDebouncing] = useDebounce(pesquisa, 500);
 
-  const options = retornaUsuariosQueryOptions({ pesquisa: pesquisaDebouncing, page, limit });
+  const options = getUsuarios({ pesquisa: pesquisaDebouncing, page, limit });
   const { data: usuarios, isFetching } = useQuery(options);
 
   // guarda o último conjunto de dados válidos

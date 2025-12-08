@@ -81,7 +81,7 @@ export default function PageLogin() {
                                             autoComplete="email"
                                             disabled={isLoading}
                                             {...field}
-                                            className="h-12 bg-gray-100/90 !text-lg"
+                                            className="h-12 bg-gray-100/90 text-lg!"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -101,7 +101,7 @@ export default function PageLogin() {
                                             autoComplete="current-password"
                                             disabled={isLoading}
                                             {...field}
-                                            className="h-12 !text-lg bg-gray-100/90"
+                                            className="h-12 text-lg! bg-gray-100/90"
                                         />
                                     </FormControl>
                                     <FormMessage />

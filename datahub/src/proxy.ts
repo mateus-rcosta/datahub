@@ -9,8 +9,11 @@ export default async function middleware(req: NextRequest) {
 
   const token = req.cookies.get("session_token")?.value;
   const session = await decrypt(token);
-
   if (!isPublicRoute && !session?.userId) {
+    if(req.nextUrl.pathname.startsWith("/api/")){
+      //return new NextResponse(null, { status: 403 });
+      return NextResponse.next();
+    }
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
@@ -18,6 +21,7 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!|_next/static|_next/image|.*\\.png$).*)"],
+  matcher: "/((?!_next/image|_next/static|favicon.ico|.png$).*)",
+  
 };
 

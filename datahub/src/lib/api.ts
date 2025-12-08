@@ -1,4 +1,4 @@
-import { ApiFalha, ApiSuccesso } from "@/types/Api";
+import { ApiFalha, ApiSuccesso } from "@/types/types";
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 

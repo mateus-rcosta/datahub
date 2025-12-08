@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog,  DialogContent,  DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import FormUsuario from "@/features/usuario/components/form/FormUsuario";
-import { Usuario } from "@/features/usuario/type/types";
+import { Usuario } from "@/types/types";
 import { PenBox, Plus } from "lucide-react";
 import { useState } from "react";
 

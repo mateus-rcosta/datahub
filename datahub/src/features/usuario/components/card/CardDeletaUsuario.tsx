@@ -5,8 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import deletarUsuario from "../../action/deletarUsuario";
+import { usedeleteUsuario } from "../../api/deleteUsuario";
+import { ApiFalha } from "@/types/types";
+import { UserErrorType } from "../../exceptions/UserError";
 
 interface ConfirmDeleteProps {
   itemName?: string;
@@ -15,25 +16,31 @@ interface ConfirmDeleteProps {
 
 export default function ConfirmDelete({ itemName = "usuário", id }: ConfirmDeleteProps) {
   const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
+  const {deleteUsuario, isPending} = usedeleteUsuario();
 
-  // Mutation para deletar usuário
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => deletarUsuario(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["usuarios"] });
-      toast.success(`${itemName} deletado com sucesso.`);
-      setOpen(false);
-    },
-    onError: (err: unknown) => {
-      if (err instanceof Error) {
-        toast.error(err.message || "Erro ao deletar o usuário.");
-      }
-    },
-  });
+  
 
   const handleConfirm = async () => {
-    await deleteMutation.mutateAsync(id);
+    const resultado = await deleteUsuario(id);
+    if (resultado.success) {
+      setOpen(false);
+      toast.success(`Deletado com sucesso o usuário: ${itemName}`);
+      return;
+    }
+
+    if (!resultado.success) {
+      if(resultado.code === UserErrorType.ADMIN_NAO_PODE_SER_ALTERADO ) {
+        toast.error("Erro ao deletar: usuário SUPERADMIN não pode ser deletado.");
+        return;
+      }
+      if(resultado.code === UserErrorType.USUARIO_NAO_PODE_SE_EXCLUIR ) {
+        toast.error("Erro ao deletar: você não pode se deletar.");
+        return;
+      }
+
+      toast.error("Erro ao deletar: erro desconhecido.");
+      return;
+    }
   };
 
   return (
@@ -51,11 +58,11 @@ export default function ConfirmDelete({ itemName = "usuário", id }: ConfirmDele
             Tem certeza que deseja deletar este usuário: <strong>{itemName}</strong>? Esta ação não pode ser desfeita.
           </p>
           <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)} disabled={deleteMutation.isPending}>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleConfirm} disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button variant="destructive" onClick={handleConfirm} disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Deletar
             </Button>
           </DialogFooter>

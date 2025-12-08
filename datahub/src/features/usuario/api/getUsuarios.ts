@@ -1,6 +1,6 @@
-import { RetornarUsuarios, Usuario } from "../type/types";
+import { ApiPagination, RetornarUsuarios, Usuario } from "@/types/types";
 
-export function retornaUsuariosQueryOptions({ pesquisa, page, limit }: RetornarUsuarios) {
+export function getUsuarios({ pesquisa, page, limit }: RetornarUsuarios) {
     const isServer = typeof window === "undefined";
 
     const url = isServer

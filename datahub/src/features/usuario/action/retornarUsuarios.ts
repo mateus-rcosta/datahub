@@ -1,6 +1,6 @@
 "use server";
 import { prisma } from "@/lib/database";
-import { RetornarUsuarios, Usuario } from "../type/types";
+import { ApiPagination, RetornarUsuarios, Usuario } from "@/types/types";
 
 export default async function retornarUsuarios({ pesquisa, page = 1, limit = 10 }: RetornarUsuarios): Promise<ApiPagination<Usuario>> {
   

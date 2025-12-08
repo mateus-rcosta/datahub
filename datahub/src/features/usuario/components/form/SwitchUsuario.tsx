@@ -1,48 +1,44 @@
 "use client";
 
-import React from "react";
-import { Switch } from "@/components/ui/switch"; 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import mudarStatusUsuario from "@/features/usuario/action/mudarStatusUsuario";
+import { Switch } from "@/components/ui/switch";
+import { useToggleStatusUsuario } from "../../api/toggleStatusUsuario";
 import { toast } from "sonner";
-import { retornaUsuariosQueryOptions } from "../../service/queryOptions";
+import { UserErrorType } from "../../exceptions/UserError";
 
 type Props = {
     id: number;
+    nome: string;
     ativo: boolean;
-    pesquisa?: string;
-    page?: number;
-    limit?: number;
 };
 
-export default function SwitchUsuario({ id, ativo, pesquisa = "", page = 1, limit = 10 }: Props) {
-    const queryClient = useQueryClient();
+export default function SwitchUsuario({ id, ativo, nome }: Props) {
+    const { toggleStatusUsuario } = useToggleStatusUsuario();
 
-    const mutation = useMutation({
-        mutationFn: (id: number) => mudarStatusUsuario(id),
 
-        onError: (err: unknown, id: number) => {
-            toast.error(
-                err instanceof Error
-                    ? err.message
-                    : `Erro ao mudar status de acesso do usuário com id: ${id}.`
-            );
-            queryClient.invalidateQueries({ queryKey: retornaUsuariosQueryOptions({ pesquisa, page, limit }).queryKey });
-        },
+    const onCheckedChangeSubmit = async () => {
+        const resultado = await toggleStatusUsuario(id);
+        if (resultado.success) {
+            toast.success(`Alterado o status com sucesso do usuário: ${nome}`);
+        }
+        if (!resultado.success) {
+            if (resultado.code === UserErrorType.ADMIN_NAO_PODE_SER_ALTERADO) {
+                toast.error("Erro ao mudar o status de acesso: usuário SUPERADMIN não pode ter o status alterado.");
+                return;
+            }
+            if (resultado.code === UserErrorType.USUARIO_NAO_PODE_SE_EXCLUIR) {
+                toast.error("Erro ao mudar o status de acesso: você não pode mudar o seu status.");
+                return;
+            }
 
-        onSuccess: (_, id: number) => {
-            toast.success(`Status alterado com sucesso do usuário com id: ${id}.`);
-            queryClient.invalidateQueries({ queryKey: retornaUsuariosQueryOptions({ pesquisa, page, limit }).queryKey });
-        },
-    });
-    
+            toast.error("Erro ao deletar: erro desconhecido.");
+            return;
+        }
+    }
+
     return (
         <Switch
             checked={ativo}
-            onCheckedChange={() => {
-                // chama a mutação; a mutação faz o toggle no servidor
-                mutation.mutate(id);
-            }}
+            onCheckedChange={onCheckedChangeSubmit}
             className="max-w-8 data-[state=unchecked]:bg-black"
         />
     );

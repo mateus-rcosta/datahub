@@ -1,22 +1,21 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiRequest } from "@/lib/api";
-import { ApiFalha, ApiSuccesso, CriarUsuarioInput } from "@/types/types";
+import { ApiFalha, ApiSuccesso } from "@/types/types";
 
 
-const createUsuario = async (data: CriarUsuarioInput) => {
+const toggleStatusUsuario = async (id: number) => {
   return apiRequest<null>({
-    path: '/api/usuarios',
+    path: `/api/usuarios/${id}/status`,
     method: 'POST',
-    body: data,
     credentials: 'same-origin', 
     expectEmptyResponse: true, 
   });
 };
-export const useCreateUsuario = () => {
+export const useToggleStatusUsuario = () => {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation<ApiSuccesso<null> | ApiFalha, unknown, CriarUsuarioInput>({
-    mutationFn: (data) => createUsuario(data),
+  const mutation = useMutation<ApiSuccesso<null> | ApiFalha, unknown, number>({
+    mutationFn: (id) => toggleStatusUsuario(id),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['usuarios'] });
@@ -25,7 +24,7 @@ export const useCreateUsuario = () => {
   });
 
   return {
-    createUsuario: mutation.mutateAsync,
+    toggleStatusUsuario: mutation.mutateAsync,
     isPending: mutation.isPending,
     status: mutation.status,
     reactQueryError: mutation.error,

@@ -3,10 +3,10 @@
 import { gerarHash } from "@/lib/bcrypt";
 import z from "zod";
 import { usuarioEditarSchema } from "../schema/UsuarioSchema";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/database";
+import { UserError, UserErrorType } from "../exceptions/UserError";
 
-interface AtualizarUsuarioInput extends Partial<z.infer<typeof usuarioEditarSchema>> {
+export interface AtualizarUsuarioInput extends Partial<z.infer<typeof usuarioEditarSchema>> {
     id: number;
 }
 
@@ -16,8 +16,14 @@ export default async function atualizarUsuario(input: AtualizarUsuarioInput) {
     const parsed = usuarioEditarSchema.safeParse(rest);
 
     if (!parsed.success) {
-        throw new Error("Dados inválidos: " + JSON.stringify(parsed.error.message));
+        const validacao = parsed.error.issues.map((issue) => issue.message);
+        throw new UserError(UserErrorType.DADOS_INVALIDOS, "Dados inválidos", validacao);
     }
+
+    if (id === 1) {
+        throw new UserError(UserErrorType.ADMIN_NAO_PODE_SER_ALTERADO, "Usuário admin não pode ser deletado.");
+    }
+
 
     let {
         nome,
@@ -28,11 +34,6 @@ export default async function atualizarUsuario(input: AtualizarUsuarioInput) {
         editar_campanhas,
         editar_integracoes,
     } = parsed.data;
-    
-    if (id === 1) {
-        admin = true;
-        senha = undefined;
-    }
 
     try {
         await prisma.funcionario.update({
@@ -60,13 +61,11 @@ export default async function atualizarUsuario(input: AtualizarUsuarioInput) {
         });
 
     } catch (error: unknown) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-              if (error.code === "P2002") {
-                throw new Error("E-mail ja cadastrado");
-              }
-            }
-        
-        
-            throw new Error("Erro ao atualizar usuário.");
+        if (error instanceof UserError) {
+            throw error;
+        }
+
+
+        throw new Error("Erro ao atualizar usuário.");
     }
 }
