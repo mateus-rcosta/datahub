@@ -6,15 +6,28 @@ datasource db {
   provider = "postgresql"
 }
 
-model funcionario {
-  id Int @id @default(autoincrement())
-  nome String @db.VarChar(120) 
-  email String @db.VarChar(120) @unique
-  senha String @db.VarChar(60)
-  permissoes Json? @db.JsonB()
-  admin Boolean @db.Boolean @default(false) 
-  ativo Boolean @db.Boolean @default(true)
-  createdAt DateTime @db.Timestamptz(3) @default(now())
-  updatedAt DateTime? @db.Timestamptz(3) 
-  deletedAt DateTime? @db.Timestamptz(3) 
+model usuario {
+  id         String    @id @default(uuid()) @db.Uuid
+  nome       String    @db.VarChar(120)
+  email      String    @unique @db.VarChar(120)
+  senha      String    @db.VarChar(60)
+  permissoes Json?     @db.JsonB 
+  admin      Boolean   @default(false) @db.Boolean
+  ativo      Boolean   @default(true) @db.Boolean
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime? @db.Timestamptz(3)
+  deletedAt  DateTime? @db.Timestamptz(3)
+  sessao sessao[]
+}
+
+model sessao {
+  id Int @id @default(autoincrement()) 
+  sid String @unique @db.Uuid
+  dados Json @db.JsonB
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  expiredAt  DateTime? @db.Timestamptz(3)
+  revokedAt  DateTime? @db.Timestamptz(3)
+  usuarioId String @db.Uuid
+
+  usuario usuario @relation(fields: [usuarioId], references: [id])
 }
