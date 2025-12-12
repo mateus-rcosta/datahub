@@ -1,9 +1,8 @@
-
-import { verifySession } from "@/lib/session";
+import { retornaSessaoUsuario } from "@/lib/sessao";
 import { redirect } from "next/navigation";
 
 export default async function page () {
-    const user = await verifySession();
+    const user = await retornaSessaoUsuario();
     if (!user) return redirect("/auth/login");
     
     redirect("/dashboard");

@@ -1,4 +1,5 @@
 "use client";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -7,22 +8,22 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import z from "zod";
-import { formSchema } from "./_schemas/schema";
+import { z } from "zod";
 import { loginAction } from "./_actions/auth";
 import { Loader2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import { AuthErrorType } from "../../_exception/AuthError";
+import { formSchema } from "./_schemas/schema";
+
 
 const ERROR_MESSAGES = {
-    [AuthErrorType.CREDENCIAIS_INVALIDAS]: "E-mail ou senha incorretos.",
+    [AuthErrorType.CREDENCIAIS_INVALIDAS]: "E-mail ou senha incorretos",
     [AuthErrorType.ERRO_INTERNO]: "Erro interno do servidor. Tente novamente.",
 } as const;
 
 export default function PageLogin() {
-    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -31,33 +32,35 @@ export default function PageLogin() {
         },
     });
 
-    const onSubmit = async (data: z.infer<typeof formSchema>) => {
-        setIsLoading(true);
-        
-        try {
-            const result = await loginAction(data.email, data.senha);
-            
-            if (!result.success) {
-                const errorMessage = result.error 
-                    ? ERROR_MESSAGES[result.error] 
-                    : "Erro desconhecido.";
-                
-                form.setError("root", { 
-                    type: "manual",
-                    message: errorMessage 
-                });
+    const { execute, isExecuting } = useAction(loginAction, {
+        onSuccess: () => {
+            router.push("/dashboard");
+        },
+        onError: ({ error }) => {
+            if (error.validationErrors) {
+                const emailError = error.validationErrors.email?._errors?.[0];
+
+                if (emailError) {
+                    form.setError("email", { message: emailError });
+                }
+
                 return;
             }
-            
-            router.push("/dashboard");
-        } catch (error) {
-            form.setError("root", { 
-                type: "manual",
-                message: "Erro de comunicação com o servidor." 
-            });
-        } finally {
-            setIsLoading(false);
-        }
+
+            if (error.serverError) {
+                const errorMessage = ERROR_MESSAGES[error.serverError as AuthErrorType]
+                    || "Erro desconhecido";
+
+                form.setError("root", {
+                    type: "manual",
+                    message: errorMessage,
+                });
+            }
+        },
+    });
+
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+        execute(data);
     };
 
     return (
@@ -79,7 +82,7 @@ export default function PageLogin() {
                                             placeholder="E-mail"
                                             type="email"
                                             autoComplete="email"
-                                            disabled={isLoading}
+                                            disabled={isExecuting}
                                             {...field}
                                             className="h-12 bg-gray-100/90 text-lg!"
                                         />
@@ -99,7 +102,7 @@ export default function PageLogin() {
                                             placeholder="Senha"
                                             type="password"
                                             autoComplete="current-password"
-                                            disabled={isLoading}
+                                            disabled={isExecuting}
                                             {...field}
                                             className="h-12 text-lg! bg-gray-100/90"
                                         />
@@ -108,20 +111,20 @@ export default function PageLogin() {
                                 </FormItem>
                             )}
                         />
-                        
+
                         {form.formState.errors.root && (
                             <div className="text-red-600 font-semibold text-sm rounded-md">
                                 {form.formState.errors.root.message}
                             </div>
                         )}
-                        
-                        <Button 
-                            type="submit" 
-                            className="bg-primary hover:bg-primary/90 w-full text-xl mt-2" 
-                            size="lg" 
-                            disabled={isLoading}
+
+                        <Button
+                            type="submit"
+                            className="bg-primary hover:bg-primary/90 w-full text-xl mt-2"
+                            size="lg"
+                            disabled={isExecuting}
                         >
-                            {isLoading ? (
+                            {isExecuting ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Entrando...

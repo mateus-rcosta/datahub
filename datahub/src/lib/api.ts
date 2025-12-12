@@ -31,7 +31,6 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
         expectEmptyResponse = false,
     } = opts;
 
-    // serializar query se houver
     let url = path;
     if (query) {
         const qs = Object.entries(query)
@@ -42,13 +41,11 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
     }
 
     const headers: Record<string, string> = {
-        // quando tiver body JSON definimos o header abaixo
         ...extraHeaders,
     };
 
     let bodyToSend: BodyInit | undefined;
     if (body !== undefined && body !== null) {
-        // JSON por padrão
         headers['Content-Type'] = headers['Content-Type'] ?? 'application/json';
         bodyToSend = typeof body === 'string' ? body : JSON.stringify(body);
     }
@@ -65,21 +62,16 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
             credentials,
         });
 
-        // tentativa segura de parse do JSON (pode falhar em respostas vazias)
         const parsed = await res.json().catch(() => null);
 
         if (res.ok) {
-            // quando esperado conteúdo vazio (204) retornamos data = undefined
             if (expectEmptyResponse) {
                 return { success: true, data: undefined as unknown as T };
             }
 
-            // se o backend já tem formato { data: ..., ... } devolvemos o parsed tal qual,
-            // mas vamos tipar como T — o consumidor deve conhecer o shape.
             return { success: true, data: parsed as T };
         }
 
-        // status não ok -> mapear body para ApiFalha se possível
         return {
             success: false,
             code: parsed?.code ?? `HTTP_${res.status}`,

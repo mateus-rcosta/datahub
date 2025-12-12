@@ -1,6 +1,4 @@
-import criarUsuario from '@/features/usuario/action/criarUsuario';
-import retornarUsuarios from '@/features/usuario/action/retornarUsuarios';
-import { UserError, UserErrorType } from '@/features/usuario/exceptions/UserError';
+import retornarUsuarios from '@/features/usuario/services/retorna-usuarios';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -34,33 +32,4 @@ export async function GET(request: NextRequest) {
         JSON.stringify({ data: usuarios.data, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),
         { headers: { 'Content-Type': 'application/json' }, status: 200 },
     );
-}
-
-export async function POST(request: NextRequest) {
-    try {
-        await criarUsuario(await request.json());
-        return new NextResponse(null, { headers: { 'Content-Type': 'application/json' }, status: 201 });
-
-    } catch (error: unknown) {
-        if (error instanceof UserError) {
-            if (error.code === UserErrorType.DADOS_INVALIDOS || error.code === UserErrorType.SENHA_INVALIDA) {
-                return NextResponse.json(
-                    {
-                        message: error.message,
-                        validacao: error.validacao? error.validacao : null,
-                        code: error.code,
-                    },
-                    { headers: { 'Content-Type': 'application/json' }, status: 400 },
-                )
-            }
-        }
-
-        return NextResponse.json(
-            {
-                message: "Erro ao criar o usuário.",
-                code: "ERROR",
-            },
-            { headers: { 'Content-Type': 'application/json' }, status: 500 },
-        )
-    }
 }

@@ -1,27 +1,22 @@
-import { JsonValue } from "@prisma/client/runtime/client";
+import { JWTPayload } from "jose";
 
 // Usuário
 export interface Usuario {
-  id: number;
+  id: string;
   nome: string;
   email: string;
   senha?: string;
   admin: boolean;
   ativo: boolean;
-  permissoes: {
-    editar_base_dados: boolean;
-    visualizar_relatorios: boolean;
-    editar_campanhas: boolean;
-    editar_integracoes: boolean;
-  } & JsonValue;
-  createdAt: Date;
-  updatedAt: Date | null;
+  permissoes: JSONBUsuarioPermissoes;
+  createdAt?: Date;
+  updatedAt?: Date | null;
 }
 
 export interface RetornarUsuarios {
   pesquisa: string;
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
 }
 
 export interface CriarUsuarioInput {
@@ -29,10 +24,7 @@ export interface CriarUsuarioInput {
   email: string;
   senha: string;
   admin?: boolean;
-  editar_base_dados?: boolean;
-  visualizar_relatorios?: boolean;
-  editar_campanhas?: boolean;
-  editar_integracoes?: boolean;
+  permissoes: JSONBUsuarioPermissoes;
 }
 
 // api
@@ -55,4 +47,24 @@ export interface ApiFalha {
   code: string;
   message?: string;
   validacao?: Record<string, string[]>;
+}
+
+export interface JSONBUsuarioPermissoes {
+  super_admin?: boolean;
+  editar_base_dados: boolean;
+  visualizar_relatorios: boolean;
+  editar_campanhas: boolean;
+  editar_integracoes: boolean;
+}
+
+export interface AuthPayload extends JWTPayload{
+    usuarioId: string;
+    email: string;
+    admin: boolean;
+    permissoes: string[];
+}
+
+export interface JSONBSessaoDados{
+    ip: string;
+    userAgent: string;
 }

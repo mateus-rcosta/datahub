@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Login",
+  title: "Datahub | Login",
   description: "Página de login da aplicação DataHub",
 };
 

@@ -74,7 +74,7 @@ export function SwitchInput<T extends FieldValues = FieldValues, U extends Field
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         aria-invalid={fieldState.invalid}
-                        className={cn("max-w-8 data-[state=unchecked]:bg-black", rest.className)}
+                        className={cn("max-w-8 data-[state=unchecked]:bg-gray-500/80", rest.className)}
                         {...rest}
                     />
                 </Field>

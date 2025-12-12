@@ -1,27 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt } from "./lib/session";
+import { verificaSessao } from "./lib/sessao";
+import { SessaoError } from "./lib/sessao-error";
 
 const publicRoutes = ["/auth/login", "/"];
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isPublicRoute = publicRoutes.includes(path);
 
-  const token = req.cookies.get("session_token")?.value;
-  const session = await decrypt(token);
-  if (!isPublicRoute && !session?.userId) {
-    if(req.nextUrl.pathname.startsWith("/api/")){
-      //return new NextResponse(null, { status: 403 });
-      return NextResponse.next();
-    }
-    return NextResponse.redirect(new URL("/auth/login", req.url));
+  if (isPublicRoute || req.headers.get("next-action")) {
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  try {
+    await verificaSessao();
+    return NextResponse.next();
+  } catch (error: unknown) {
+    if (error instanceof SessaoError) {
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
+
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
 }
 
 export const config = {
-  matcher: "/((?!_next/image|_next/static|favicon.ico|.png$).*)",
-  
+  matcher: ['/((?!_next/static|_next/image|_next/data|favicon.ico|.*\\..*).*)'],
 };
-
