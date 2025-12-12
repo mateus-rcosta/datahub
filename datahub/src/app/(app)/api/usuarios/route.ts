@@ -1,4 +1,4 @@
-import retornarUsuarios from '@/features/usuario/action/retornarUsuarios';
+import retornarUsuarios from '@/features/usuario/services/retorna-usuarios';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

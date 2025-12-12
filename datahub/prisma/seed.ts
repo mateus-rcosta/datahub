@@ -1,14 +1,13 @@
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { prisma } from "../src/lib/database"
 
-const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
 async function main() {
   const senha = "admin123";
   const hash = await bcrypt.hash(senha, SALT_ROUNDS);
 
-  await prisma.funcionario.upsert({
+  await prisma.usuario.upsert({
     where: { email: "admin@empresa.com" },
     update: {},
     create: {
@@ -18,6 +17,7 @@ async function main() {
       admin: true,
       ativo: true,
       permissoes: {
+        super_admin: true,
         editar_base_dados: true,
         visualizar_relatorios: true,
         editar_campanhas: true,

@@ -1,78 +1,54 @@
 "use server";
+
 import bcrypt from "bcrypt";
-import { createSession } from "@/lib/session";
+import { criaSessao } from "@/lib/sessao";
 import { prisma } from "@/lib/database";
-import { z } from "zod";
-import { redirect } from "next/navigation";
+import { formSchema, PermissoesSchema } from "../_schemas/schema";
 import { AuthError, AuthErrorType } from "@/app/(nao_autenticado)/_exception/AuthError";
+import { actionClient } from "@/lib/safe-action";
 
-const PermissoesSchema = z.object({
-  editar_base_dados: z.boolean().optional().default(false),
-  visualizar_relatorios: z.boolean().optional().default(false),
-  editar_campanhas: z.boolean().optional().default(false),
-  editar_integracoes: z.boolean().optional().default(false),
-});
-
-type LoginResult = 
-  | { success: true }
-  | { success: false; error: AuthErrorType };
-
-export async function loginAction(
-  email: string, 
-  senha: string
-): Promise<LoginResult> {
-  try {
-    const user = await prisma.funcionario.findUnique({ 
-      where: { 
-        email, 
-        ativo: true, 
-        deletedAt: null 
-      } 
+export const loginAction = actionClient
+  .inputSchema(formSchema)
+  .action(async ({ parsedInput: { email, senha } }) => {
+    const usuario = await prisma.usuario.findUnique({
+      where: {
+        email,
+        ativo: true,
+        deletedAt: null,
+      },
     });
-    
-    if (!user) {
-      return { 
-        success: false, 
-        error: AuthErrorType.CREDENCIAIS_INVALIDAS 
-      };
+
+    if (!usuario) {
+      throw new AuthError(AuthErrorType.CREDENCIAIS_INVALIDAS);
     }
-    
-    const valid = await bcrypt.compare(senha, user.senha);
-    
-    if (!valid) {
-      return { 
-        success: false, 
-        error: AuthErrorType.CREDENCIAIS_INVALIDAS 
-      };
+
+    // Valida a senha
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+    if (!senhaValida) {
+      throw new AuthError(AuthErrorType.CREDENCIAIS_INVALIDAS);
     }
-    
-    const permissoes = PermissoesSchema.parse(user.permissoes);
-    
-    await createSession({
-      userId: user.id,
-      email: user.email,
-      admin: user.admin,
-      editar_campanhas: permissoes.editar_campanhas,
-      editar_base_dados: permissoes.editar_base_dados,
-      editar_integracoes: permissoes.editar_integracoes,
-      visualizar_relatorios: permissoes.visualizar_relatorios,
+
+    // Processa permissões
+    const permissoes = PermissoesSchema.parse(usuario.permissoes);
+    const permissoesLista: string[] = [];
+
+    for (const [key, value] of Object.entries(permissoes)) {
+      if (value) {
+        permissoesLista.push(key);
+      }
+    }
+
+    // Cria a sessão
+    await criaSessao({
+      usuarioId: usuario.id,
+      email: usuario.email,
+      admin: usuario.admin,
+      permissoes: permissoesLista,
     });
-    
-    return { success: true };
-    
-  } catch (error: unknown) {
-    console.error("Erro no loginAction:", error);
-    
-    if (error instanceof AuthError) {
-      return { 
-        success: false, 
-        error: error.code 
-      };
-    }
-    
-    return { 
-      success: false, 
-      error: AuthErrorType.ERRO_INTERNO 
+
+    return {
+      success: true,
+      message: "Login realizado com sucesso",
     };
-  }
-}
+  });

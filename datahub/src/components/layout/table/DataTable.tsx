@@ -100,7 +100,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                Sem dados até o momento.
               </TableCell>
             </TableRow>
           )}
@@ -139,7 +139,7 @@ export function DataTable<TData, TValue>({
           )}
         </div>
 
-        <div className="flex-row self-end justify-self-end justify-end space-x-2 pl-2 w-fit bg-white">
+        <div className="flex-row self-end justify-self-end justify-end space-x-2 pl-2 w-fit bg-white rounded-md">
           <label className="text-sm">Por página:</label>
           <select
             value={limit}

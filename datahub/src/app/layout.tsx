@@ -5,6 +5,9 @@ import AppProvider from "./provider";
 
 export const metadata: Metadata = {
   title: "Datahub",
+  icons: {
+    icon: "/logo/logo.svg",
+  },
   description: "Sistema de gestão de dados da Londrinet.",
 };
 

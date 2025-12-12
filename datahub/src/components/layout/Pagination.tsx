@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "../ui/button-group";
+import { ApiPagination } from "@/types/types";
 
 
 export function getVisiblePages(current: number, total: number, maxVisible = 3): number[] {
