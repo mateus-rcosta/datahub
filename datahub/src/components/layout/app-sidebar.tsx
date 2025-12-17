@@ -19,7 +19,7 @@ export function AppSidebar({ currentPage, onNavigate, onLogout }: AppSidebarProp
     const menuItems = [
         { id: "dashboard", label: "Dashboard", icon: BarChart3, permissao: true },
         { id: "relatorios", label: "Relatórios", icon: FileText, permissao: user.permissoes.includes("visualizar_relatorios") },
-        { id: "base-de-dados", label: "Base de dados", icon: Database, permissao: user.permissoes.includes("editar_base_dados")  },
+        { id: "base-dados", label: "Base de dados", icon: Database, permissao: user.permissoes.includes("editar_base_dados")  },
         { id: "campanhas", label: "Campanhas", icon: Send, permissao: user.permissoes.includes("editar_campanhas") },
         { id: "integracoes", label: "Integrações", icon: Settings, permissao: user.permissoes.includes("editar_integracoes") },
         { id: "usuarios", label: "Usuários", icon: Users, permissao: user.admin},
