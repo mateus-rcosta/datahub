@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const usuarios = await retornarUsuarios({ pesquisa, page, limit });
 
     return new NextResponse(
-        JSON.stringify({ data: usuarios.data, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),
+        JSON.stringify({ dados: usuarios.dados, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),
         { headers: { 'Content-Type': 'application/json' }, status: 200 },
     );
 }

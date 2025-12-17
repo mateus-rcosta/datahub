@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { DataTable } from "@/components/layout/table/DataTable";
 import { columns } from "./coluna";
-import { InputUsuario } from "../form/input-usuario";
 import CardUsuario from "../card/card-usuario";
 import { Spinner } from "@/components/ui/spinner"
 import { useDebounce } from 'use-debounce';
+import { InputPesquisa } from "@/components/layout/form/input-usuario";
 import { useRetornaUsuarios } from "../../api/retorna-usuario";
 
 export default function TabelaUsuario() {
@@ -30,21 +30,21 @@ export default function TabelaUsuario() {
     );
   }
 
-  if (!res || !res.success) {
+  if (!res || !res.sucesso) {
     return (
       <div className="flex flex-col items-center justify-center p-6 gap-2">
         <p className="text-destructive font-semibold">Erro ao carregar os dados</p>
-        {res && !res.success && res.message && (
-          <p className="text-sm text-muted-foreground">{res.message}</p>
+        {res && !res.sucesso && res.mensagem && (
+          <p className="text-sm text-muted-foreground">{res.mensagem}</p>
         )}
       </div>
     );
   }
 
-  const paginacao = res.data;
+  const paginacao = res.dados;
   const total = paginacao.total || 0;
   const pageCount = Math.ceil(total / limit);
-  const displayedData = paginacao.data || [];
+  const displayedData = paginacao.dados || [];
 
   return (
     <div className="flex flex-col w-full justify-between px-6 py-3 gap-4">
@@ -53,7 +53,7 @@ export default function TabelaUsuario() {
           {isFetching && <Spinner className="size-10" />}
         </div>
         <div className="flex flex-row gap-2">
-          <InputUsuario state={pesquisa} useState={setPesquisa} total={total} />
+          <InputPesquisa state={pesquisa} useState={setPesquisa} total={total} />
           <CardUsuario />
         </div>
       </div>

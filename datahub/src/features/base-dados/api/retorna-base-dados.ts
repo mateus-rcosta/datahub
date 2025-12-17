@@ -1,10 +1,10 @@
 import { apiRequest } from "@/lib/api";
-import { ApiPagination, Usuario, ApiSuccesso, ApiFalha, PageParams } from "@/types/types";
+import { ApiPagination, ApiSuccesso, ApiFalha, PageParams, BaseDados } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 
-const retornaUsuarios = async (pesquisa: string, page: number, limit: number) => {
-    return apiRequest<ApiPagination<Usuario>>({
-        path: `/api/usuarios`,
+export const retornaBaseDados = async ({ pesquisa, page, limit }: PageParams) => {
+    return apiRequest<ApiPagination<BaseDados>>({
+        path: `/api/base-dados`,
         query: { pesquisa, page, limit },
         extraHeaders: { "x-requested-by": "nextjs-client" },
         method: "GET",
@@ -12,15 +12,16 @@ const retornaUsuarios = async (pesquisa: string, page: number, limit: number) =>
     });
 };
 
-export function useRetornaUsuarios({ pesquisa, page, limit }: PageParams) {
-    const query = useQuery<ApiSuccesso<ApiPagination<Usuario>> | ApiFalha>({
-        queryKey: ['usuarios', pesquisa, page, limit],
-        queryFn: () => retornaUsuarios(pesquisa, page, limit),
+export function useRetornaBaseDados({ pesquisa, page, limit }: PageParams) {
+    const query = useQuery<ApiSuccesso<ApiPagination<BaseDados>> | ApiFalha>({
+        queryKey: ['baseDados', pesquisa, page, limit],
+        queryFn: () => retornaBaseDados({pesquisa, page, limit}),
         placeholderData: (previousData) => previousData,
         refetchOnWindowFocus: true,
         staleTime: 60 * 1000 * 5,
         refetchInterval: 60 * 1000 * 5,
         refetchIntervalInBackground: false,
+        
     });
     
     return {

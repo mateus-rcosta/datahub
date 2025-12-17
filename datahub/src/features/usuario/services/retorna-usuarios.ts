@@ -1,9 +1,9 @@
 "use server";
 import { prisma } from "@/lib/database";
-import { ApiPagination, RetornarUsuarios, Usuario } from "@/types/types";
+import { ApiPagination, PageParams, Usuario } from "@/types/types";
 import { Prisma } from "@prisma/client";
 
-export default async function retornaUsuarios({ pesquisa, page = 1, limit = 10 }: RetornarUsuarios): Promise<ApiPagination<Usuario>> {
+export default async function retornaUsuarios({ pesquisa, page = 1, limit = 10 }: PageParams): Promise<ApiPagination<Usuario>> {
 
   const take = limit;
   const skip = (page - 1) * limit;
@@ -24,7 +24,7 @@ export default async function retornaUsuarios({ pesquisa, page = 1, limit = 10 }
         admin,
         ativo,
         permissoes - 'super_admin' AS permissoes
-      FROM usuario
+      FROM usuarios
       WHERE "deletedAt" IS NULL
         AND nome ILIKE ${'%' + pesquisa + '%'}
         AND permissoes ->> 'super_admin' = 'false'
@@ -53,7 +53,7 @@ export default async function retornaUsuarios({ pesquisa, page = 1, limit = 10 }
   });
 
   return {
-    data: UsuariosFormatado,
+    dados: UsuariosFormatado,
     hasNext,
     hasPrevious,
     limit: limit,

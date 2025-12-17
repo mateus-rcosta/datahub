@@ -1,5 +1,5 @@
 "use client";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { usuarioSchema } from "@/features/usuario/schema/usuario-schema";
@@ -44,12 +44,17 @@ export default function FormCriarUsuario({ onClose }: FormCriarUsuarioProps) {
         form.reset();
         onClose();
       },
-      onError: ({ error }) => {
-        if (error.validationErrors) {
+      onError: ({ serverError, validationErrors}) => {
+
+        if (validationErrors) {
           toast.error("Erro ao criar usuário: verifique se os dados estão corretos.");
+          return;
         }
-        if (error.serverError) {
-          const mensagemErro = MESSAGENS_ERRO[error.serverError as UsuarioErrorType] || "Erro desconhecido";
+
+        if (serverError) {
+          const mensagemErro =
+            MESSAGENS_ERRO[serverError as UsuarioErrorType] ?? "Erro desconhecido";
+
           toast.error("Erro ao criar usuário: " + mensagemErro);
         }
       }
@@ -62,11 +67,12 @@ export default function FormCriarUsuario({ onClose }: FormCriarUsuarioProps) {
 
   return (
     <FormUsuarioBase
-      form={form}
+      form={form as UseFormReturn<z.infer<typeof usuarioSchema>>}
       onSubmit={handleSubmit}
       onClose={onClose}
       isLoading={isExecuting}
       isEditMode={false}
+      schema={usuarioSchema}
     />
   );
 }

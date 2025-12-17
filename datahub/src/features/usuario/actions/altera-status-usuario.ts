@@ -15,7 +15,7 @@ export default async function alteraStatusUsuario(id: string, usuarioId: string)
     }
 
     const updated = await prisma.$executeRaw`
-      UPDATE usuario
+      UPDATE usuarios
       SET ativo = NOT ativo, "updatedAt" = NOW()
       WHERE id = ${id} AND "deletedAt" IS NULL AND COALESCE(permissoes ->> 'super_admin', 'false') = 'false'
       RETURNING id;

@@ -7,27 +7,61 @@ datasource db {
 }
 
 model usuario {
-  id         String    @id @default(uuid()) @db.Uuid
-  nome       String    @db.VarChar(120)
-  email      String    @unique @db.VarChar(120)
-  senha      String    @db.VarChar(60)
-  permissoes Json?     @db.JsonB 
-  admin      Boolean   @default(false) @db.Boolean
-  ativo      Boolean   @default(true) @db.Boolean
-  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime? @db.Timestamptz(3)
-  deletedAt  DateTime? @db.Timestamptz(3)
-  sessao sessao[]
+  id          String        @id @default(uuid()) @db.Uuid
+  nome        String        @db.VarChar(120)
+  email       String        @unique @db.VarChar(120)
+  senha       String        @db.VarChar(60)
+  permissoes  Json?         @db.JsonB
+  admin       Boolean       @default(false) @db.Boolean
+  ativo       Boolean       @default(true)  @db.Boolean
+  createdAt   DateTime      @default(now()) @db.Timestamptz()
+  updatedAt   DateTime?     @db.Timestamptz()
+  deletedAt   DateTime?     @db.Timestamptz()
+  baseDeDados baseDeDados[]
+  sessao      sessao[]
+
+  @@map("usuarios")
 }
 
 model sessao {
-  id Int @id @default(autoincrement()) 
-  sid String @unique @db.Uuid
-  dados Json @db.JsonB
-  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
-  expiredAt  DateTime? @db.Timestamptz(3)
-  revokedAt  DateTime? @db.Timestamptz(3)
-  usuarioId String @db.Uuid
+  id        Int       @id @default(autoincrement())
+  sid       String    @unique @db.Uuid 
+  dados     Json      @db.JsonB
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+  expiredAt DateTime? @db.Timestamptz()
+  revokedAt DateTime? @db.Timestamptz()
+  usuarioId String    @db.Uuid
 
-  usuario usuario @relation(fields: [usuarioId], references: [id])
+  usuario   usuario   @relation(fields: [usuarioId], references: [id])
+
+  @@map("sessoes")
+}
+
+model baseDeDados {
+  id        String    @id @default(uuid()) @db.Uuid
+  nome      String    @db.VarChar(60)
+  estrutura Json      @db.JsonB
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+  updatedAt DateTime? @db.Timestamptz()
+  deletedAt DateTime? @db.Timestamptz()
+  usuarioId String?   @db.Uuid
+
+  usuario   usuario?  @relation(fields: [usuarioId], references: [id])
+  clientes cliente[]
+
+  @@map("basesDeDados")
+}
+
+model cliente {
+  id String @id @default(uuid(7)) @db.Uuid
+  dados Json @db.JsonB
+  validacao Json? @db.JsonB 
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime? @db.Timestamptz()
+  deletedAt DateTime? @db.Timestamptz()
+  baseDeDadosId String @db.Uuid()
+  
+  baseDeDados baseDeDados @relation(fields: [baseDeDadosId], references: [id])
+  
+  @@map("clientes")
 }

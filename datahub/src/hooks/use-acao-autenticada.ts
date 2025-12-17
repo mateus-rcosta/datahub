@@ -9,13 +9,18 @@ export function useAcaoAutenticada<TData>(
   action: any,
   options?: {
     onSuccess?: (data: TData) => void;
-    onError?: (error: any) => void;
+    onError?: (error: {
+      serverError?: unknown;
+      validationErrors?: unknown;
+    } & {
+      thrownError?: Error | undefined;
+    }) => void;
     invalidateQueries?: string[][];
   }
 ) {
   const router = useRouter();
   const queryClient = getQueryClient();
-  
+
   return useAction(action, {
     onSuccess: ({ data }: { data: TData }) => {
 

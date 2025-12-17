@@ -27,12 +27,12 @@ export default function SwitchUsuario({ id, ativo, nome }: Props) {
             query.invalidateQueries({ queryKey: ['usuarios'] });
             toast.success(`Alterado o status com sucesso do usuário: ${nome}`);
         },
-        onError: ({ error }) => {
-            if (error.validationErrors) {
+        onError: ({ serverError, validationErrors, thrownError: error }) => {
+            if (validationErrors) {
                 toast.error("Erro ao mudar o status de acesso. Tente novamente mais tarde.");
             }
-            if (error.serverError) {
-                const mensagemErro = MESSAGENS_ERRO[error.serverError as UsuarioErrorType] || "Erro desconhecido";
+            if (serverError) {
+                const mensagemErro = MESSAGENS_ERRO[serverError as UsuarioErrorType] || "Erro desconhecido";
                 toast.error("Erro ao mudar o status de acesso: " + mensagemErro);
             }
         }
