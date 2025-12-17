@@ -68,7 +68,7 @@ export function SwitchInput<T extends FieldValues = FieldValues, U extends Field
             render={({ field, fieldState }) => (
                 <Field orientation="vertical" >
                     <FieldLabel htmlFor={field.name} className="text-lg">{label}</FieldLabel>
-                    {description && <FieldDescription className="text-md text-gray-800/95" >{description}</FieldDescription>}
+                    {description && <FieldDescription className="text-md text-gray-800/95 dark:text-gray-300" >{description}</FieldDescription>}
                     <Switch
                         id={field.name}
                         checked={field.value}

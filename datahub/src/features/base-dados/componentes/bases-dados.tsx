@@ -4,7 +4,7 @@ import { useRetornaBaseDados } from "../api/retorna-base-dados";
 import CardBaseDados from "./card-base-dados";
 import FormCriaBaseDados from "./form-cria-base-dados";
 import { useState, useEffect } from "react";
-import { InputPesquisa } from "@/components/layout/form/input-usuario";
+import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
 import { useDebounce } from "use-debounce";
 import { Paginacao } from "@/components/layout/pagination";
 import { useLimiteResponsivo } from "@/hooks/use-limite-responsivo";

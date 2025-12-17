@@ -139,12 +139,12 @@ export function DataTable<TData, TValue>({
           )}
         </div>
 
-        <div className="flex-row self-end justify-self-end justify-end space-x-2 pl-2 w-fit bg-white rounded-md">
+        <div className="flex-row self-end justify-self-end justify-end space-x-2 bg-white dark:bg-secondary pl-2 w-fit rounded-md">
           <label className="text-sm">Por página:</label>
           <select
             value={limit}
             onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-            className="rounded  px-2 py-1"
+            className="rounded px-2 py-1 dark:bg-secondary dark:text-white"
           >
             {[5, 10, 20, 50].map((n) => (
               <option key={n} value={n}>

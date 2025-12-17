@@ -5,7 +5,7 @@ import { columns } from "./coluna";
 import CardUsuario from "../card/card-usuario";
 import { Spinner } from "@/components/ui/spinner"
 import { useDebounce } from 'use-debounce';
-import { InputPesquisa } from "@/components/layout/form/input-usuario";
+import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
 import { useRetornaUsuarios } from "../../api/retorna-usuario";
 
 export default function TabelaUsuario() {

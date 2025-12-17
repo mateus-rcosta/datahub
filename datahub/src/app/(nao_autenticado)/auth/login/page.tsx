@@ -64,7 +64,7 @@ export default function PageLogin() {
     };
 
     return (
-        <Card className="bg-white rounded-lg shadow-sm hover:shadow-2xl transition-shadow duration-200 px-4 py-6 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[40%]">
+        <Card className="rounded-lg shadow-sm hover:shadow-2xl transition-shadow duration-200 px-4 py-6 w-[90%] sm:w-[80%] md:w-[60%] lg:w-[40%]">
             <CardHeader className="flex flex-col items-center mb-2">
                 <Image src="/logo/logo.svg" alt="Logo" width={100} height={100} priority />
             </CardHeader>
@@ -120,7 +120,7 @@ export default function PageLogin() {
 
                         <Button
                             type="submit"
-                            className="bg-primary hover:bg-primary/90 w-full text-xl mt-2"
+                            className="w-full text-xl mt-2"
                             size="lg"
                             disabled={isExecuting}
                         >
