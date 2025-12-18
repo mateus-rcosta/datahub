@@ -10,7 +10,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <ThemeProvider attribute="class" enableSystem={true}>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
                 <Toaster />
                 {children}
             </ThemeProvider>
