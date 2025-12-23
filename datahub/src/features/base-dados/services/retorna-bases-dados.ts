@@ -5,6 +5,7 @@ import { prisma } from "@/lib/database";
 export const retornaBasesDados = async ({ pesquisa, page, limit }: PageParams):Promise<ApiPagination<BaseDados>> => {
     const where: Prisma.baseDeDadosWhereInput = {
         nome: { contains: pesquisa, mode: "insensitive" },
+        deletedAt: null
     };
 
     const [total, data] = await prisma.$transaction([

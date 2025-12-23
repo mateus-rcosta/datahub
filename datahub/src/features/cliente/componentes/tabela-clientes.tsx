@@ -8,6 +8,7 @@ import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
 import SeletorColunas from "@/components/layout/seletor-colunas";
 import { useDebounce } from "use-debounce";
 import { set } from "zod";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TabelaClientesProps {
     baseDadosId: string;
@@ -39,17 +40,17 @@ export default function TabelaClientes({ baseDadosId, estrutura }: TabelaCliente
         setPage(1);
     }, [pesquisaDebouncing, campoPesquisa]);
 
-    const { dados: res, isFetching, isLoading } = useRetornaClientesApi({
+    const { dados: res, isLoading, isFetching } = useRetornaClientesApi({
         pesquisa: pesquisaDebouncing,
         page,
         limit,
         campoPesquisa,
     }, baseDadosId);
-
+    
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center p-6">
-                <Spinner className="size-10" />
+            <div className="flex h-full w-full items-center justify-center p-4">
+                <Skeleton className="h-full w-full" />
             </div>
         );
     }
@@ -119,10 +120,9 @@ export default function TabelaClientes({ baseDadosId, estrutura }: TabelaCliente
                 </div>
             </div>
 
-            {/* Spinner de loading */}
             {isFetching && (
-                <div className="absolute top-2 right-2 z-10">
-                    <Spinner className="size-6" />
+                <div className="flex">
+                    <Spinner className="animate-spin" />
                 </div>
             )}
 

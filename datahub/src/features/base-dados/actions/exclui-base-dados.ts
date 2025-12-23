@@ -9,7 +9,7 @@ interface ExcluiBaseDadosParams {
     id: string;
 }
 async function excluiBaseDados({ id }: ExcluiBaseDadosParams){
-    const resultado = await prisma.baseDeDados.update({where: {id}, data: {updatedAt: new Date()}, select: {id: true}});
+    const resultado = await prisma.baseDeDados.update({where: {id}, data: {deletedAt: new Date()}, select: {id: true}});
     if (!resultado) {
         throw new BaseDadosError(BaseDadosErrorType.BASE_DE_DADOS_NAO_ENCONTRADA, 'Base de dados nao encontrada.');
     }

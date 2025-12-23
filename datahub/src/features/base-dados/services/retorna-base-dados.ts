@@ -5,7 +5,8 @@ import { BaseDados } from "@/types/types";
 export const retornaBaseDados = async ({ id }: { id: string }): Promise<BaseDados> => {
     const dados = await prisma.baseDeDados.findUnique({
         where: {
-            id
+            id,
+            deletedAt: null
         },
         select: {
             id: true,

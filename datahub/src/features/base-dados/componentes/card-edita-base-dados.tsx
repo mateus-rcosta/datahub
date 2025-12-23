@@ -78,9 +78,6 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
         setOpen(false);
     };
 
-    const handleExcluir = async () => {
-    };
-
     const renderDialogContent = () => {
         if (isLoading) {
             return (
@@ -152,8 +149,7 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
                 </div>
 
                 <DialogFooter className="shrink-0 flex-row justify-between items-center gap-2 pt-4 border-t">
-                    <CardExcluiBaseDados id={data.dados.id} nome={data.dados.nome} pageParams={pageParams}/>
-
+                    <CardExcluiBaseDados id={data.dados.id} nome={data.dados.nome} pageParams={pageParams} onClose={() => setOpen(false)}/>
                     <div className="flex gap-2">
                         <Button type="button" variant="outline" onClick={handleCancelar}> 
                             Cancelar 

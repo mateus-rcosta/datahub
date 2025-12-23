@@ -12,37 +12,40 @@ interface CardExcluiBaseDadosProps {
     id: string;
     nome: string;
     pageParams: PageParams;
+    onClose: () => void;
 }
 
 const MESSAGENS_ERRO: Partial<Record<BaseDadosErrorType, string>> = {
     [BaseDadosErrorType.BASE_DE_DADOS_NAO_ENCONTRADA]: "Base de dados não encontrada.",
 } as const;
 
-export default function CardExcluiBaseDados({ id, nome, pageParams }: CardExcluiBaseDadosProps) {
+export default function CardExcluiBaseDados({ id, nome, pageParams, onClose }: CardExcluiBaseDadosProps) {
     const [open, setOpen] = useState(false);
 
     const { execute, isExecuting } = useAcaoAutenticada(excluiBaseDadosAction, {
         invalidateQueries: [["baseDados", pageParams.pesquisa, pageParams.page, pageParams.limit]],
         onSuccess: () => {
             setOpen(false);
+            onClose();
             toast.success(`Excluído com sucesso a base de dados: ${nome}`);
         },
         onError: ({ serverError, validationErrors }) => {
             if (validationErrors) {
-                console.log(validationErrors);
                 setOpen(false);
+                onClose();
                 toast.warning("Erro ao excluir base de dados.");
             }
             if (serverError) {
                 const mensagemErro = MESSAGENS_ERRO[serverError as BaseDadosErrorType] || "Erro desconhecido";
                 setOpen(false);
+                onClose();
                 toast.warning("Erro ao excluir base de dados: " + mensagemErro);
             }
         }
     });
 
     const handleConfirma = async () => {
-        execute(id);
+        execute({id});
     };
 
     return (
