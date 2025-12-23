@@ -112,7 +112,7 @@ export function Tabela<TData, TValue>({
         <div className="flex md:hidden flex-col gap-3">
           <div className="flex items-center justify-between w-full">
             {typeof totalItems === "number" && (
-              <Badge variant="secondary" className="text-sm">
+              <Badge variant="outline" className="text-sm">
                 {totalItems} {totalItems === 1 ? "item" : "itens"}
               </Badge>
             )}
@@ -191,7 +191,7 @@ export function Tabela<TData, TValue>({
             </div>
 
             {typeof totalItems === "number" && (
-              <Badge variant="secondary" className="text-sm">
+              <Badge variant="outline" className="text-sm">
                 {totalItems} {totalItems === 1 ? "item" : "itens"}
               </Badge>
             )}
