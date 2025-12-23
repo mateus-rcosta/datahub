@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { retornaPayloadSemDescriptografar } from '@/lib/sessao';
 
 //types
-import { retornaBaseDados } from '@/features/base-dados/services/retorna-base-dados';
+import { retornaBasesDados } from '@/features/base-dados/services/retorna-bases-dados';
 import { criaBaseDeDados } from '@/features/base-dados/services/cria-base-dados';
 import { BaseDadosError, BaseDadosErrorType } from '@/features/base-dados/exceptions/base-dados-error';
 import { SessaoErrorType } from '@/lib/sessao-error';
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
         page = 1;
     }
 
-    const resultado = await retornaBaseDados({ pesquisa, page, limit });
+    const resultado = await retornaBasesDados({ pesquisa, page, limit });
 
     return new NextResponse(
         JSON.stringify({ dados: resultado.dados, hasNext: resultado.hasNext, hasPrevious: resultado.hasPrevious, limit, page, total: resultado.total }),

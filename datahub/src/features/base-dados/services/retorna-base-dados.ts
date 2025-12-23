@@ -1,45 +1,34 @@
-import { Prisma } from "@prisma/client";
-import { ApiPagination, BaseDados, PageParams } from "@/types/types";
-import { prisma } from "@/lib/database";
+import { prisma } from "@/lib/database"
+import { BaseDadosError, BaseDadosErrorType } from "../exceptions/base-dados-error";
+import { BaseDados } from "@/types/types";
 
-export const retornaBaseDados = async ({ pesquisa, page, limit }: PageParams):Promise<ApiPagination<BaseDados>> => {
-    const where: Prisma.baseDeDadosWhereInput = {
-        nome: { contains: pesquisa, mode: "insensitive" },
-    };
+export const retornaBaseDados = async ({ id }: { id: string }): Promise<BaseDados> => {
+    const dados = await prisma.baseDeDados.findUnique({
+        where: {
+            id
+        },
+        select: {
+            id: true,
+            nome: true,
+            estrutura: true,
+            usuario: {
+                select: {
+                    nome: true
+                }
+            },
+            createdAt: true
+        }
+    })
 
-    const [total, data] = await prisma.$transaction([
-        prisma.baseDeDados.count({ where }),
-        prisma.baseDeDados.findMany({
-            where,
-            take: limit,
-            skip: (page - 1) * limit,
-            orderBy: { createdAt: 'desc' },
-            select: {
-                id: true,
-                nome: true,
-                estrutura: true,
-                _count: {
-                    select: {
-                        clientes: true
-                    }
-                },
-                updatedAt: true,
-                createdAt: true
-            }
-        })
-    ])
+    if (!dados) throw new BaseDadosError(BaseDadosErrorType.BASE_DE_DADOS_NAO_ENCONTRADA, 'Base de dados nao encontrada.');
 
-    const hasNext = page * limit < total;
-    const hasPrevious = page > 1;
+    const baseDeDados = {
+        id,
+        nome: dados.nome,
+        estrutura: dados.estrutura as string[],
+        usuarioNome: dados.usuario?.nome || undefined,
+        createdAt: dados.createdAt
+    }
 
-    const resultado = data.map((baseDeDados) => ({
-        id: baseDeDados.id,
-        nome: baseDeDados.nome,
-        estrutura: baseDeDados.estrutura,
-        clientes: baseDeDados._count.clientes,
-        createdAt: baseDeDados.createdAt,
-        updatedAt: baseDeDados.updatedAt ?? undefined,
-    }));
-
-    return { total, dados: resultado, hasNext, hasPrevious, page, limit };
+    return baseDeDados;
 }

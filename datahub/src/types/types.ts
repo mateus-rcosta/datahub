@@ -1,4 +1,4 @@
-import { InputJsonValue } from "@prisma/client/runtime/client";
+import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
 import { JWTPayload } from "jose";
 
 // Usuário
@@ -18,6 +18,8 @@ export interface PageParams {
   pesquisa: string;
   page: number;
   limit: number;
+  campos?: string[];
+  campoPesquisa?: string;
 }
 
 export interface CriarUsuarioInput {
@@ -80,7 +82,20 @@ export interface BaseDados{
     id: string;
     nome: string;
     clientes?: number;
-    createdAt: Date;
-    updatedAt?: Date;
+    usuarioNome?: string
+    estrutura: string[];
+    createdAt: string | Date;
+    updatedAt?: string | Date;
 }
+
 export interface LinhaCsv { [key: string]: string | null | undefined; }
+
+export interface Cliente{
+    id: string;
+    dados: InputJsonValue | JsonValue;
+    validacao: InputJsonValue | JsonValue;
+    baseDeDadosId: string;
+    createdAt: string | Date;
+    updatedAt?: string | Date | null;
+}
+

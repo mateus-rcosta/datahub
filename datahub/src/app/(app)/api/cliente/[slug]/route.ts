@@ -1,16 +1,19 @@
-import retornaUsuarios from '@/features/usuario/services/retorna-usuarios';
+import retornaClientes from '@/features/cliente/service/retorna-clientes';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
     const path = process.env.APP_URL!;
     const from = request.headers.get("x-requested-by");
 
     if (from !== "nextjs-client") {
-        return NextResponse.redirect(`${path}/usuarios`, 303);
+        return NextResponse.redirect(`${path}/dashboard`, 303);
     }
+
+    const { slug } = await params;
 
     const searchParams = request.nextUrl.searchParams;
     let pesquisa = searchParams.get('pesquisa');
+    let campoPesquisa = searchParams.get('campoPesquisa');
     let limit = Number(searchParams.get('limit'));
     let page = Number(searchParams.get('page'));
 
@@ -26,7 +29,11 @@ export async function GET(request: NextRequest) {
         page = 1;
     }
 
-    const usuarios = await retornaUsuarios({ pesquisa, page, limit });
+    if(!campoPesquisa) {
+        campoPesquisa = "";
+    }
+
+    const usuarios = await retornaClientes({ pesquisa, page, limit, campoPesquisa}, slug);
 
     return new NextResponse(
         JSON.stringify({ dados: usuarios.dados, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),

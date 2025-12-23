@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { DataTable } from "@/components/layout/table/DataTable";
+import { useEffect, useState } from "react";
+import { Tabela } from "@/components/layout/table/tabela";
 import { columns } from "./coluna";
 import CardUsuario from "../card/card-usuario";
 import { Spinner } from "@/components/ui/spinner"
@@ -20,7 +20,10 @@ export default function TabelaUsuario() {
     limit
   });
 
-
+  // reseta ao digitar
+  useEffect(() => {
+    setPage(1);
+  }, [pesquisaDebouncing, pesquisa]);
 
   if (isLoading) {
     return (
@@ -52,12 +55,12 @@ export default function TabelaUsuario() {
         <div className="flex flex-1">
           {isFetching && <Spinner className="size-10" />}
         </div>
-        <div className="flex flex-row gap-2">
-          <InputPesquisa state={pesquisa} useState={setPesquisa} total={total} />
+        <div className="flex flex-col-reverse md:flex-row w-full md:w-fit gap-2">
+          <InputPesquisa state={pesquisa} useStatePesquisa={setPesquisa} total={total} campoPesquisa="nome" />
           <CardUsuario />
         </div>
       </div>
-      <DataTable
+      <Tabela
         columns={columns}
         data={displayedData}
         page={page}

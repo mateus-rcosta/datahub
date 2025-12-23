@@ -1,20 +1,33 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye } from "lucide-react";
+import { formatarData } from "@/helper/formatador";
+import CardVisualizaBaseDados from "./card-visualiza-base-dados";
+import { Badge } from "@/components/ui/badge";
+import CardEditaBaseDados from "./card-edita-base-dados";
+import { PageParams } from "@/types/types";
 
-interface CardBaseDadosProps{
-    nome:string;
-    clientesCount?:number;
-    updatedAt?:Date;
-    createdAt:Date;
+interface CardBaseDadosProps {
+    id: string;
+    nome: string;
+    clientesCount?: number;
+    estrutura: string[];
+    updatedAt?: string | Date;
+    createdAt: string | Date;
+    pageParams: PageParams;
 }
-export default function CardBaseDados({ nome, clientesCount, updatedAt, createdAt }: CardBaseDadosProps) {
+
+export default function CardBaseDados({ id, nome, clientesCount, updatedAt, createdAt, estrutura, pageParams }: CardBaseDadosProps) {
     return (
         <Card className="h-full flex flex-col border-2 border-transparent hover:shadow-lg hover:border-gray-200 transition-all duration-300">
             <CardHeader>
-                <CardTitle className="truncate">{nome}</CardTitle>
+                <CardTitle className="flex flex-col gap-2 justify-between truncate">
+                    <div className="flex w-full justify-between items-center gap-2">
+                        <p className="font-bold truncate">{nome}</p>
+                        <CardEditaBaseDados baseDadosId={id} pageParams={pageParams}/>
+                    </div>
+                    <Badge className="text-sm self-end" variant={"outline"} >WiFeed</Badge>
+                </CardTitle>
             </CardHeader>
 
             <CardContent className="flex-1 space-y-1">
@@ -24,20 +37,17 @@ export default function CardBaseDados({ nome, clientesCount, updatedAt, createdA
 
                 {updatedAt && (
                     <p className="text-sm text-muted-foreground">
-                        Atualizado em: {updatedAt.toLocaleString('pt-BR')}
+                        Atualizado em: {formatarData(updatedAt)}
                     </p>
                 )}
 
                 <p className="text-sm text-muted-foreground">
-                    Inserido em: { createdAt.toLocaleString('pt-BR')}
+                    Inserido em: {formatarData(createdAt)}
                 </p>
             </CardContent>
 
             <CardFooter>
-                <Button className="w-full" variant="outline">
-                    <Eye className="mr-2 h-4 w-4" />
-                    Visualizar
-                </Button>
+                <CardVisualizaBaseDados baseDadosId={id} nome={nome} estrutura={estrutura} />
             </CardFooter>
         </Card>
     );

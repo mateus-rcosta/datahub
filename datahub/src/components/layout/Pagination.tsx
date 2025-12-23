@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
 interface PaginacaoProps {
@@ -5,6 +6,7 @@ interface PaginacaoProps {
   limit: number;
   total: number;
   onPageChange: (page: number) => void;
+  className?: string;
 }
 
 export function Paginacao({
@@ -12,13 +14,14 @@ export function Paginacao({
   limit,
   total,
   onPageChange,
+  className
 }: PaginacaoProps) {
   const totalPages = Math.ceil(total / limit);
 
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div className={cn("flex items-center justify-center gap-2 mt-6", className)}>
       <Button
         variant={"outline"}
         className="shadow-md font-semibold"

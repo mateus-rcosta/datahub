@@ -1,3 +1,5 @@
+import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
+
 export const apenasNumeros = (valor: string | null | undefined): string => {
     if (!valor) return "";
     return valor.replace(/\D/g, "");
@@ -38,3 +40,24 @@ export const formataTelefone = (telefone: string | null | undefined): string | n
     // Monta telefone brasileiro completo
     return `55${ddd}${telefoneLocal}`;
 };
+
+export const formatarData = (value: string | Date) => {
+    const date = value instanceof Date ? value : new Date(value);
+
+    return date.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+    });
+};
+
+export type JSONNormalizado = Record<string, string | number | boolean | null>;
+
+export function normalizaJSON(
+  dados: InputJsonValue | JsonValue
+): JSONNormalizado {
+  if (!dados || typeof dados !== "object" || Array.isArray(dados)) {
+    return {};
+  }
+
+  return dados as JSONNormalizado;
+}

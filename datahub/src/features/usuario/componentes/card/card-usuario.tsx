@@ -29,15 +29,17 @@ export default function CardUsuario({  usuario }: CardUsuarioProps) {
             }
             
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className=" max-h-[90vh] w-[90vw] md:max-w-[50vw] lg:max-w-[40vw] overflow-y-auto ">
+                <DialogContent className="max-w-[85%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[60%] max-h-[80vh] sm:max-h-[75vh] md:max-h-[70vh] flex flex-col h-full overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{usuario ? "Editar Usuário" : "Adicionar Novo Usuário"}</DialogTitle>
                     </DialogHeader>
-                    { !usuario ? 
+                    <div className="flex-1 min-h-0 overflow-auto py-1">
+                        { !usuario ? 
                       <FormCriarUsuario onClose={() => setOpen(false)} />
                       :
                       <FormEditarUsuario onClose={() => setOpen(false)} usuario={usuario} />
                     }
+                    </div>
                 </DialogContent>
             </Dialog>
         </>

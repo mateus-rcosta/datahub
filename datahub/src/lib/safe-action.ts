@@ -3,11 +3,12 @@ import { AuthError, AuthErrorType } from "@/app/(nao_autenticado)/_exception/Aut
 import { UsuarioError } from "@/features/usuario/exceptions/usuario-error";
 import { SessaoError, SessaoErrorType } from "./sessao-error";
 import { retornaSessaoUsuario } from "./sessao";
+import { ClienteError } from "@/features/cliente/exceptions/cliente-error";
 
 export const actionClient = createSafeActionClient({
   handleServerError(e) {
 
-    if (e instanceof AuthError || e instanceof UsuarioError || e instanceof SessaoError) {
+    if (e instanceof AuthError || e instanceof UsuarioError || e instanceof SessaoError || e instanceof ClienteError) {
       return e.code;
     }
 

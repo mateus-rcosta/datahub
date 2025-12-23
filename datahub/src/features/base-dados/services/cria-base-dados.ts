@@ -38,7 +38,6 @@ export const criaBaseDeDados = async ({ csv, nome, usuarioId}: CriaBaseDeDadosPr
 
     if (colunasObrigatorias.length === 0) {
         throw new BaseDadosError(BaseDadosErrorType.CSV_SEM_COLUNAS_OBRIGATORIAS, 'O CSV nao possui colunas obrigatorias para validacao.');
-        //return NextResponse.json({ status: "error", message: 'O CSV não possui colunas obrigatórias para validação.' }, { status: 400 });
     }
 
     // cria a base de dados
@@ -59,7 +58,6 @@ export const criaBaseDeDados = async ({ csv, nome, usuarioId}: CriaBaseDeDadosPr
 
     if (clientes.errors.length > 0) {
         throw new BaseDadosError(BaseDadosErrorType.CSV_INVALIDO, 'O CSV esta invalido, verifique-o e tente novamente.');
-        //return NextResponse.json({ status: 500 });
     }
 
     // Valida e normaliza os dados

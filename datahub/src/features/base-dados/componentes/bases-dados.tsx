@@ -1,6 +1,6 @@
 "use client";
 
-import { useRetornaBaseDados } from "../api/retorna-base-dados";
+import { useRetornaBasesDados } from "../api/retorna-bases-dados";
 import CardBaseDados from "./card-base-dados";
 import FormCriaBaseDados from "./form-cria-base-dados";
 import { useState, useEffect } from "react";
@@ -19,7 +19,12 @@ export default function BasesDados() {
   // sempre que o limit mudar, volta para página 1
   useEffect(() => { setPage(1); }, [limit]);
 
-  const { data, isLoading, isFetching } = useRetornaBaseDados({ pesquisa: pesquisaDebouncing, page, limit });
+  // reseta ao digitar
+  useEffect(() => {
+    setPage(1);
+  }, [pesquisaDebouncing, pesquisa]);
+
+  const { data, isLoading, isFetching } = useRetornaBasesDados({ pesquisa: pesquisaDebouncing, page, limit });
 
   if (isLoading) return <p className="text-black">Carregando...</p>;
 
@@ -28,28 +33,29 @@ export default function BasesDados() {
   const pagination = data.dados;
   console.log(pagination);
   return (
-    <div className="flex flex-col p-6 gap-4">
-      {/* Header */}
-      <div className="flex w-full justify-end gap-2">
+    <div className="flex flex-col p-6 gap-4 items-end">
+      <div className="flex flex-col-reverse md:flex-row w-full md:w-fit justify-end right gap-2">
         <InputPesquisa
           state={pesquisa}
-          useState={setPesquisa}
+          useStatePesquisa={setPesquisa}
+          campoPesquisa="nome"
           total={pagination.total}
-          className="w-fit"
         />
         <FormCriaBaseDados />
       </div>
 
-      {/* Grid */}
       <div className={`w-full grid gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(360px,1fr))] ${isFetching ? "opacity-60" : ""}`}>
-        {pagination.dados && pagination.dados.map((baseDados) => 
-        <CardBaseDados
+        {pagination.dados && pagination.dados.map((baseDados) =>
+          <CardBaseDados
             key={baseDados.id}
+            id={baseDados.id}
             createdAt={baseDados.createdAt}
             nome={baseDados.nome}
             clientesCount={baseDados.clientes}
             updatedAt={baseDados.updatedAt}
-          /> )}
+            estrutura={baseDados.estrutura}
+            pageParams={{pesquisa:pesquisaDebouncing, page, limit}}
+          />)}
       </div>
 
       {/* Paginação */}
@@ -58,6 +64,7 @@ export default function BasesDados() {
         limit={pagination.limit}
         total={pagination.total}
         onPageChange={setPage}
+        className="self-center"
       />
     </div>
   );

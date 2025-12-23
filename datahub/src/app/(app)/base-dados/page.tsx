@@ -1,23 +1,23 @@
 import { Cabecalho } from "@/components/layout/cabecalho";
 import BasesDados from "@/features/base-dados/componentes/bases-dados";
-import { retornaBaseDados } from "@/features/base-dados/services/retorna-base-dados";
+// import { retornaBasesDados } from "@/features/base-dados/services/retorna-bases-dados";
 
 import { getQueryClient } from "@/lib/react-query";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+// import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 export const dynamic = 'force-dynamic';
 export default async function page() {
 
-    const queryClient = getQueryClient();
+    // const queryClient = getQueryClient();
 
-    const pesquisa = "";
-    const page = 1;
-    const limit = 10;
+    // const pesquisa = "";
+    // const page = 1;
+    // const limit = 10;
 
-    // Pre-fetch dos dados
-    const baseDados = await retornaBaseDados({pesquisa, page, limit});
+    // // Pre-fetch dos dados
+    // const baseDados = await retornaBasesDados({pesquisa, page, limit});
 
-    queryClient.setQueryData(["baseDados", pesquisa, page, limit], { sucesso: true, dados: baseDados });
+    // queryClient.setQueryData(["baseDados", pesquisa, page, limit], { sucesso: true, dados: baseDados });
 
     return (
         <div className="w-full">
