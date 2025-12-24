@@ -47,15 +47,15 @@ export function InputPesquisa({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent 
                             align="end" 
-                            className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-1 min-w-[150px] z-50"
+                            className="bg-background border rounded-lg shadow-lg p-1 min-w-[150px] z-50"
                         >
                             {campos.map((campo) => (
                                 <DropdownMenuItem 
                                     key={campo} 
                                     onClick={() => useCampoPesquisa(campo)}
                                     className={cn(
-                                        "px-3 py-2 text-sm cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-700 outline-none",
-                                        campoPesquisa === campo && "bg-gray-100 dark:bg-gray-700 font-semibold"
+                                        "px-3 py-2 text-sm cursor-pointer rounded hover:bg-muted-foreground/10 outline-none m-1.5",
+                                        campoPesquisa === campo && "bg-muted-foreground/10  font-semibold"
                                     )}
                                 >
                                     {campo}
@@ -71,22 +71,22 @@ export function InputPesquisa({
                 {campos && campos.length > 0 && useCampoPesquisa && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <button className="flex items-center gap-1 px-3 py-1.5 text-xs border rounded-md bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <button className="flex items-center gap-1 px-3 py-1.5 text-xs border rounded-md bg-background">
                                 Campo: <span className="font-semibold">{campoPesquisa || 'Selecione'}</span>
                                 <ChevronDownIcon className="size-3" />
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent 
                             align="start" 
-                            className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-1 min-w-[150px] z-50"
+                            className="bg-background border rounded-lg shadow-lg p-1 min-w-[150px] z-50"
                         >
                             {campos.map((campo) => (
                                 <DropdownMenuItem 
                                     key={campo} 
                                     onClick={() => useCampoPesquisa(campo)}
                                     className={cn(
-                                        "px-3 py-2 text-sm cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-700 outline-none",
-                                        campoPesquisa === campo && "bg-gray-100 dark:bg-gray-700 font-semibold"
+                                        "px-3 py-2 text-sm cursor-pointer rounded hover:bg-muted-foreground/10  outline-none m-0.5",
+                                        campoPesquisa === campo && "bg-muted-foreground/10  font-semibold"
                                     )}
                                 >
                                     {campo}
@@ -97,7 +97,7 @@ export function InputPesquisa({
                 )}
                 
                 {total > 0 && (
-                    <span className="flex w-full text-xs text-center items-center text-gray-600 dark:text-gray-200 whitespace-nowrap">
+                    <span className="flex w-full text-xs text-center items-center text-gray-600 dark:text-gray-200 whitespace-nowrap mt-2 ml-1">
                         {total} resultados
                     </span>
                 )}
