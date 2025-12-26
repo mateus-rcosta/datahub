@@ -1,8 +1,9 @@
 import retornaClientes from '@/features/cliente/service/retorna-clientes';
 import { NextRequest, NextResponse } from 'next/server';
+import { env } from 'process';
 
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
-    const path = process.env.APP_URL!;
+    const path = env.APP_URL;
     const from = request.headers.get("x-requested-by");
 
     if (from !== "nextjs-client") {

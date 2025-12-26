@@ -8,6 +8,7 @@ import { retornaBasesDados } from '@/features/base-dados/services/retorna-bases-
 import { criaBaseDeDados } from '@/features/base-dados/services/cria-base-dados';
 import { BaseDadosError, BaseDadosErrorType } from '@/features/base-dados/exceptions/base-dados-error';
 import { SessaoErrorType } from '@/lib/sessao-error';
+import { env } from '@/lib/env';
 
 const TIPOS_PERMITIDOS = ['text/csv', 'application/vnd.ms-excel', 'text/comma-separated-values', 'application/csv'];
 
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-    const path = process.env.APP_URL!;
+    const path = env.APP_URL;
     const from = request.headers.get("x-requested-by");
 
     if (from !== "nextjs-client") {

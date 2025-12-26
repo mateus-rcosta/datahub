@@ -7,9 +7,10 @@ import { prisma } from "./database";
 import { Prisma } from "@prisma/client";
 import { JWSSignatureVerificationFailed, JWTExpired } from "jose/errors";
 import { SessaoError, SessaoErrorType } from "./sessao-error";
+import { env } from "./env";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "supersecret");
-const EXPIRE_TIME_HOURS = Number(process.env.EXPIRE_TIME ?? 8);
+const JWT_SECRET = new TextEncoder().encode(env.JWT_SECRET);
+const EXPIRE_TIME_HOURS = env.JWT_EXPIRE_TIME_HOURS;
 const COOKIE_NAME = "sessao_token";
 
 export const criaSessao = async (payload: AuthPayload) => {
@@ -48,7 +49,7 @@ export const criaSessao = async (payload: AuthPayload) => {
     value: token,
     httpOnly: true,
     path: "/",
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "lax",
   });
 }
@@ -164,7 +165,7 @@ export const limpaTokenCookie = async () => {
     value: "",
     httpOnly: true,
     path: "/",
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "lax",
   });
 }

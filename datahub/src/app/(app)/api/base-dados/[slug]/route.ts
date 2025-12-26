@@ -1,10 +1,11 @@
 import { BaseDadosError } from "@/features/base-dados/exceptions/base-dados-error";
 import { retornaBaseDados } from "@/features/base-dados/services/retorna-base-dados";
+import { env } from "@/lib/env";
 import { NextResponse } from "next/server";
 
 export const GET = async (request: Request, { params }: { params: { slug: string } }) => {
 
-    const path = process.env.APP_URL!;
+    const path = env.APP_URL;
     const from = request.headers.get("x-requested-by");
 
     if (from !== "nextjs-client") {

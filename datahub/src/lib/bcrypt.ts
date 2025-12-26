@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
+import { env } from "./env";
 
-const SALT_ROUNDS = 10;
+const SALT_ROUNDS = env.SALT_ROUNDS;
 
 export async function gerarHash(senha: string): Promise<string> {
   return bcrypt.hash(senha, SALT_ROUNDS);

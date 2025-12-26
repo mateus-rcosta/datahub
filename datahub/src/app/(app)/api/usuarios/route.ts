@@ -1,8 +1,9 @@
 import retornaUsuarios from '@/features/usuario/services/retorna-usuarios';
+import { env } from '@/lib/env';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-    const path = process.env.APP_URL!;
+    const path = env.APP_URL;
     const from = request.headers.get("x-requested-by");
 
     if (from !== "nextjs-client") {
