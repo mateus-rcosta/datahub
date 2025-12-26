@@ -14,42 +14,30 @@ const permissoes = [
         key: "editar_base_dados",
         label: "Editar base de dados",
         icon: Database,
-        className: "h-full text-black",
+        className: "h-full text-black dark:text-gray-200",
     },
     {
         key: "editar_campanhas",
         label: "Editar campanhas",
         icon: File,
-        className: "h-full text-black",
+        className: "h-full text-black dark:text-gray-200",
     },
     {
         key: "editar_integracoes",
         label: "Editar integrações",
         icon: Send,
-        className: "h-full text-black",
+        className: "h-full text-black dark:text-gray-200",
     },
     {
         key: "visualizar_relatorios",
         label: "Visualizar relatórios",
         icon: Settings,
-        className: "h-full text-black",
+        className: "h-full text-black dark:text-gray-200",
     },
 ];
 
 
 export const columns: ColumnDef<Usuario>[] = [
-    // {
-    //     accessorKey: "id",
-    //     header: ({ column }) => {
-    //         return (
-    //             <div onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="w-full inline-flex items-center justify-center gap-2 cursor-pointer font-bold">
-    //                 <span>ID</span>
-    //                 <ArrowUpDown className="h-4 w-4" />
-    //             </div>
-    //         )
-    //     },
-    //     cell: ({ row }) => <span className="flex justify-center text-black font-semibold">{row.original.id}</span>,
-    // },
     {
         accessorKey: "nome",
         header: ({ column }) => {
@@ -61,10 +49,8 @@ export const columns: ColumnDef<Usuario>[] = [
             )
         },
         cell: ({ row }) =>
-            <span className="flex justify-start">
-                {row.original.nome.length > 20
-                    ? `${row.original.nome.substring(0, 20)}...`
-                    : row.original.nome}
+            <span className="flex justify-start truncate">
+                {row.original.nome}
             </span>
     },
     {
@@ -78,10 +64,8 @@ export const columns: ColumnDef<Usuario>[] = [
             )
         },
         cell: ({ row }) =>
-            <span className="flex justify-start">
-                {row.original.email.length > 20
-                    ? `${row.original.email.substring(0, 20)}...`
-                    : row.original.email}
+            <span className="flex justify-start truncate">
+                {row.original.email}
             </span>
     },
     {
@@ -107,7 +91,7 @@ export const columns: ColumnDef<Usuario>[] = [
             }
             return (
                 <div className="flex w-full justify-start">
-                    <div className="flex gap-2 bg-transparent text-black font-semibold pr-3 pl-2 pt-0.5 pb-1 rounded-lg  w-fit">
+                    <div className="flex gap-2 bg-transparent text-black dark:text-white font-semibold pr-3 pl-2 pt-0.5 pb-1 rounded-lg  w-fit">
                         <User className="h-5 w-5" />
                         <span>Usuário</span>
                     </div>
@@ -137,7 +121,7 @@ export const columns: ColumnDef<Usuario>[] = [
                                     <p.icon className={p.className} />
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <span>{p.label}</span>
+                                    <span className="dark:text-white">{p.label}</span>
                                 </TooltipContent>
                             </Tooltip>
                         ))}

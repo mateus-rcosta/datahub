@@ -1,3 +1,4 @@
+import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
 import { JWTPayload } from "jose";
 
 // Usuário
@@ -13,10 +14,12 @@ export interface Usuario {
   updatedAt?: Date | null;
 }
 
-export interface RetornarUsuarios {
+export interface PageParams {
   pesquisa: string;
   page: number;
   limit: number;
+  campos?: string[];
+  campoPesquisa?: string;
 }
 
 export interface CriarUsuarioInput {
@@ -29,7 +32,7 @@ export interface CriarUsuarioInput {
 
 // api
 export interface ApiPagination<T> {
-  data: T[];
+  dados: T[];
   page: number;
   limit: number;
   hasNext: boolean;
@@ -38,14 +41,14 @@ export interface ApiPagination<T> {
 }
 
 export interface ApiSuccesso<T = unknown> {
-  success: true;
-  data: T;
+  sucesso: true;
+  dados: T;
 }
 
 export interface ApiFalha {
-  success: false;
+  sucesso: false;
   code: string;
-  message?: string;
+  mensagem?: string;
   validacao?: Record<string, string[]>;
 }
 
@@ -68,3 +71,31 @@ export interface JSONBSessaoDados{
     ip: string;
     userAgent: string;
 }
+
+export interface PostCliente {
+    dados: InputJsonValue;
+    validacao?: InputJsonValue;
+    baseDeDadosId: string;
+}
+
+export interface BaseDados{
+    id: string;
+    nome: string;
+    clientes?: number;
+    usuarioNome?: string
+    estrutura: string[];
+    createdAt: string | Date;
+    updatedAt?: string | Date;
+}
+
+export interface LinhaCsv { [key: string]: string | null | undefined; }
+
+export interface Cliente{
+    id: string;
+    dados: InputJsonValue | JsonValue;
+    validacao: InputJsonValue | JsonValue;
+    baseDeDadosId: string;
+    createdAt: string | Date;
+    updatedAt?: string | Date | null;
+}
+

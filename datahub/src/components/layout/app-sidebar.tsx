@@ -1,15 +1,16 @@
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, SidebarTrigger, SidebarRail, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/features/auth/context/auth-client-provider";
-import { Users, Database, FileText, BarChart3, Settings, Send, LogOut, Menu } from "lucide-react";
+import { Users, Database, FileText, BarChart3, Settings, Send, LogOut, Menu, Sun } from "lucide-react";
 import { redirect } from "next/navigation";
 
 interface AppSidebarProps {
     currentPage: string;
     onNavigate: (page: string) => void;
     onLogout: () => void;
+    onAlteraTema: () => void;
 }
 
-export function AppSidebar({ currentPage, onNavigate, onLogout }: AppSidebarProps) {
+export function AppSidebar({ currentPage, onNavigate, onLogout, onAlteraTema }: AppSidebarProps) {
 
     const user = useAuth();
     if (user === null) {
@@ -19,7 +20,7 @@ export function AppSidebar({ currentPage, onNavigate, onLogout }: AppSidebarProp
     const menuItems = [
         { id: "dashboard", label: "Dashboard", icon: BarChart3, permissao: true },
         { id: "relatorios", label: "Relatórios", icon: FileText, permissao: user.permissoes.includes("visualizar_relatorios") },
-        { id: "base-de-dados", label: "Base de dados", icon: Database, permissao: user.permissoes.includes("editar_base_dados")  },
+        { id: "base-dados", label: "Base de dados", icon: Database, permissao: user.permissoes.includes("editar_base_dados")  },
         { id: "campanhas", label: "Campanhas", icon: Send, permissao: user.permissoes.includes("editar_campanhas") },
         { id: "integracoes", label: "Integrações", icon: Settings, permissao: user.permissoes.includes("editar_integracoes") },
         { id: "usuarios", label: "Usuários", icon: Users, permissao: user.admin},
@@ -79,6 +80,12 @@ export function AppSidebar({ currentPage, onNavigate, onLogout }: AppSidebarProp
             {/* Footer com logout */}
             <SidebarFooter className="bg-primary border-t rounded-b-none border-white">
                 <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={onAlteraTema} className="text-white">
+                            <Sun className="h-4 w-4" />
+                            <span>Alterar Tema</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton onClick={onLogout} className="text-red-500">
                             <LogOut className="h-4 w-4" />

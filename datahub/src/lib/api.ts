@@ -46,8 +46,12 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
 
     let bodyToSend: BodyInit | undefined;
     if (body !== undefined && body !== null) {
-        headers['Content-Type'] = headers['Content-Type'] ?? 'application/json';
-        bodyToSend = typeof body === 'string' ? body : JSON.stringify(body);
+        if (body instanceof FormData) {
+            bodyToSend = body;
+        } else {
+            headers['Content-Type'] = headers['Content-Type'] ?? 'application/json';
+            bodyToSend = typeof body === 'string' ? body : JSON.stringify(body);
+        }
     }
 
     if (token) {
@@ -66,30 +70,30 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
 
         if (res.ok) {
             if (expectEmptyResponse) {
-                return { success: true, data: undefined as unknown as T };
+                return { sucesso: true, dados: undefined as unknown as T };
             }
 
-            return { success: true, data: parsed as T };
+            return { sucesso: true, dados: parsed as T };
         }
 
         return {
-            success: false,
+            sucesso: false,
             code: parsed?.code ?? `HTTP_${res.status}`,
-            message: parsed?.message ?? `HTTP error ${res.status}`,
+            mensagem: parsed?.mensagem ?? `HTTP error ${res.status}`,
             validacao: parsed?.validacao,
         };
     } catch (error: unknown) {
         if (error instanceof Error) {
             return {
-                success: false,
+                sucesso: false,
                 code: 'NETWORK_ERROR',
-                message: error?.message ?? 'Network error',
+                mensagem: error?.message ?? 'Network error',
             };
         }
         return {
-            success: false,
+            sucesso: false,
             code: 'ERROR',
-            message: 'error',
+            mensagem: 'error',
         };
     }
 }

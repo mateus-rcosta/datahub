@@ -19,7 +19,6 @@ interface CardDeletaUsuarioProps {
 const MESSAGENS_ERRO: Partial<Record<UsuarioErrorType, string>> & Partial<Record<SessaoErrorType, string>> = {
   [UsuarioErrorType.ADMIN_NAO_PODE_SER_ALTERADO]: "Usuário SUPERADMIN não pode ser deletado.",
   [UsuarioErrorType.USUARIO_NAO_PODE_SE_EXCLUIR]: "você não pode se deletar.",
-  [SessaoErrorType.USUARIO_NAO_LOGADO]: "Usuário nao autenticado."
 } as const;
 
 export default function ConfirmDelete({ usuarioNome, id }: CardDeletaUsuarioProps) {
@@ -35,17 +34,13 @@ export default function ConfirmDelete({ usuarioNome, id }: CardDeletaUsuarioProp
       setOpen(false);
       toast.success(`Deletado com sucesso o usuário: ${usuarioNome}`);
     },
-    onError: ({ error }) => {
-      if (error.validationErrors) {
+    onError: ({ serverError, validationErrors, thrownError: error }) => {
+      if (validationErrors) {
         setOpen(false);
         toast.warning("Erro ao deletar o usuário. Tente novamente mais tarde.");
       }
-      if (error.serverError) {
-        if (error.serverError as SessaoErrorType) {
-        }
-
-        const mensagemErro = MESSAGENS_ERRO[error.serverError as UsuarioErrorType] || "Erro desconhecido";
-
+      if (serverError) {
+        const mensagemErro = MESSAGENS_ERRO[serverError as UsuarioErrorType] || "Erro desconhecido";
         setOpen(false);
         toast.warning("Erro ao deletar o usuário: " + mensagemErro);
       }

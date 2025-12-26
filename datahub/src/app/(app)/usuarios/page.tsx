@@ -4,6 +4,7 @@ import retornaUsuarios from "@/features/usuario/services/retorna-usuarios";
 import { Cabecalho } from "@/components/layout/cabecalho";
 import TabelaUsuario from "@/features/usuario/componentes/tabela/tabela-usuario";
 
+export const dynamic = 'force-dynamic';
 export default async function PageUsuarios() {
   const queryClient = getQueryClient();
 
@@ -14,7 +15,7 @@ export default async function PageUsuarios() {
   // Pre-fetch dos dados
   const usuarios = await retornaUsuarios({ pesquisa, page, limit });
   
-  queryClient.setQueryData(["usuarios", pesquisa, page, limit ], { success: true, data: usuarios });
+  queryClient.setQueryData(["usuarios", pesquisa, page, limit ], { sucesso: true, dados: usuarios });
   
   return (
     <div className="w-full">

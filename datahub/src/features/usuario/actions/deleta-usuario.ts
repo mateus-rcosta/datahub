@@ -14,7 +14,7 @@ async function deletaUsuario(id: string, usuarioId: string) {
     const data = Date.now();
 
     const updated = await prisma.$executeRaw`
-      UPDATE usuario
+      UPDATE usuarios
       SET email = CONCAT('deleted_', ${data}::text, '_', email), "deletedAt" = NOW()
       WHERE id = ${id} AND "deletedAt" IS NULL AND COALESCE(permissoes ->> 'super_admin', 'false') = 'false'
       RETURNING id;

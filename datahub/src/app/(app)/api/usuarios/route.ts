@@ -1,4 +1,4 @@
-import retornarUsuarios from '@/features/usuario/services/retorna-usuarios';
+import retornaUsuarios from '@/features/usuario/services/retorna-usuarios';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -26,10 +26,10 @@ export async function GET(request: NextRequest) {
         page = 1;
     }
 
-    const usuarios = await retornarUsuarios({ pesquisa, page, limit });
+    const usuarios = await retornaUsuarios({ pesquisa, page, limit });
 
     return new NextResponse(
-        JSON.stringify({ data: usuarios.data, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),
+        JSON.stringify({ dados: usuarios.dados, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),
         { headers: { 'Content-Type': 'application/json' }, status: 200 },
     );
 }
