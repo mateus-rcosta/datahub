@@ -14,24 +14,24 @@ services:
     networks:
       - datahub
 
-  datahub:
-    build:
-      context: ./datahub
-      dockerfile: dockerfile
-    ports:
-      - "3000:3000"
-    env_file: .env
-    depends_on:
-      - postgres
-    restart: unless-stopped
-    networks:
-      - datahub
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: '1'
-          memory: 500M
+  # datahub:
+  #   build:
+  #     context: ./datahub
+  #     dockerfile: dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   env_file: .env
+  #   depends_on:
+  #     - postgres
+  #   restart: unless-stopped
+  #   networks:
+  #     - datahub
+  #   deploy:
+  #     replicas: 1
+  #     resources:
+  #       limits:
+  #         cpus: '1'
+  #         memory: 500M
     
 
 volumes:

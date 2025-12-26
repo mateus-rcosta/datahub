@@ -65,3 +65,12 @@ model cliente {
   
   @@map("clientes")
 }
+
+model integracao {
+  id Int @db.Integer @default(autoincrement()) @id
+  nome String @db.VarChar(100)
+  status Boolean @db.Boolean @default(false) 
+  config Json @db.JsonB 
+  updatedAt DateTime? @db.Timestamptz()
+  @@map("integracoes")
+}

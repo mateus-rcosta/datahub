@@ -13,6 +13,9 @@ const envSchema = z.object({
 
   SALT_ROUNDS: z.coerce.number().int().positive().default(10),
 
+  UPCHAT_QUEUE_ID: z.string().min(1),
+
+  UPCHAT_API_KEY: z.string().min(1),
 });
 
 const _env = envSchema.safeParse(process.env);

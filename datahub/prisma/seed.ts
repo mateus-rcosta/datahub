@@ -1,37 +1,20 @@
-import bcrypt from "bcrypt";
-import { prisma } from "../src/lib/database"
-
-const SALT_ROUNDS = 10;
+import "dotenv/config";
+import { prisma } from "@/lib/database";
+import { seedAdmin } from "./seeds/admin.seed";
+import { seedUpchat } from "./seeds/upchat.seed";
 
 async function main() {
-  const senha = "admin123";
-  const hash = await bcrypt.hash(senha, SALT_ROUNDS);
+  console.log("🌱 Iniciando seeds...");
 
-  await prisma.usuario.upsert({
-    where: { email: "admin@empresa.com" },
-    update: {},
-    create: {
-      nome: "Administrador",
-      email: "admin@empresa.com",
-      senha: hash,
-      admin: true,
-      ativo: true,
-      permissoes: {
-        super_admin: true,
-        editar_base_dados: true,
-        visualizar_relatorios: true,
-        editar_campanhas: true,
-        editar_integracoes: true,
-      },
-    },
-  });
+  await seedAdmin();
+  await seedUpchat();
 
-  console.log("Usuário admin criado");
+  console.log("🌱 Seeds finalizadas com sucesso");
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
+  .catch((error) => {
+    console.error("❌ Erro ao executar seeds:", error);
     process.exit(1);
   })
   .finally(async () => {

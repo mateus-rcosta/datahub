@@ -99,3 +99,18 @@ export interface Cliente{
     updatedAt?: string | Date | null;
 }
 
+
+export interface IntegracaoUpchat{
+    api:{
+      queueId: string;
+      apiKey: string;
+    };
+    templates:[
+      {
+        id: string;
+        nome: string;
+        texto: string;
+        tipo: 'MARKETING'|'UTILITY';
+      }
+    ]
+}
