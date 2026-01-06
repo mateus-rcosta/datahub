@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/database";
 import { env } from "@/lib/env";
-import { IntegracaoUpchat } from "@/types/types";
+import { IntegracaoJSONBUpchat } from "@/types/types";
 import { InputJsonValue } from "@prisma/client/runtime/client";
 
 export async function seedUpchat() {
@@ -13,11 +13,9 @@ export async function seedUpchat() {
     return;
   }
 
-  const config: IntegracaoUpchat = {
-    api: {
-      queueId: env.UPCHAT_QUEUE_ID,
-      apiKey: env.UPCHAT_API_KEY,
-    },
+  const config: IntegracaoJSONBUpchat = {
+    queueId: env.UPCHAT_QUEUE_ID,
+    apiKey: env.UPCHAT_API_KEY,
     templates: [
       {
         id: "24",
