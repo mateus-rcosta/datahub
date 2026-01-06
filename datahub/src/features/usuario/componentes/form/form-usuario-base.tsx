@@ -17,10 +17,6 @@ interface FormUsuarioBaseProps {
   schema: z.ZodObject;
 }
 
-const inputs = {
-  classname: "bg-white",
-};
-
 export default function FormUsuarioBase({
   form,
   onSubmit,
@@ -73,14 +69,13 @@ export default function FormUsuarioBase({
 
   return (
     <form onSubmit={onSubmit}>
-      <FieldSet>
+      <FieldSet >
         <div className="flex items-center gap-2 text-black dark:text-gray-100">
           <Shield className="h-5 w-5 " />
           <h3 className="text-lg font-semibold ">Informações Básicas</h3>
         </div>
-        <FieldGroup className="flex-row">
+        <FieldGroup className="flex-col md:flex-row">
           <TextInput
-            className={inputs.classname}
             label="Nome"
             type="text"
             name="nome"
@@ -92,9 +87,8 @@ export default function FormUsuarioBase({
             control={form.control as unknown as Control<z.infer<typeof schema>>}
           />
         </FieldGroup>
-        <FieldGroup className="flex-row">
+        <FieldGroup className="flex-col md:flex-row">
           <TextInput
-            className={inputs.classname}
             label="E-mail"
             type="email"
             name="email"
@@ -102,7 +96,6 @@ export default function FormUsuarioBase({
             disabled={isEditMode}
           />
           <TextInput
-            className={inputs.classname}
             label={isEditMode ? "Nova Senha (opcional)" : "Senha"}
             type="password"
             name="senha"
@@ -160,7 +153,7 @@ export default function FormUsuarioBase({
         </Button>
         <Button
           type="submit"
-          className="flex-1 font-semibold text-lg"
+          className="flex-1 font-semibold"
           disabled={isLoading || !isDirty || !isValid}
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

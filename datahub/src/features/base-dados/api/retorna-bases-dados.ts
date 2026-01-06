@@ -12,7 +12,7 @@ export const retornaBasesDadosApi = async ({ pesquisa, page, limit }: PageParams
     });
 };
 
-export function useRetornaBasesDados({ pesquisa, page, limit }: PageParams) {
+export function useRetornaBasesDados({ pesquisa, page, limit }: PageParams, {enabled}: {enabled: boolean}) {
     const query = useQuery<ApiSuccesso<ApiPagination<BaseDados>> | ApiFalha>({
         queryKey: ['baseDados', pesquisa, page, limit],
         queryFn: () => retornaBasesDadosApi({pesquisa, page, limit}),
@@ -21,7 +21,7 @@ export function useRetornaBasesDados({ pesquisa, page, limit }: PageParams) {
         staleTime: 60 * 1000 * 5,
         refetchInterval: 60 * 1000 * 5,
         refetchIntervalInBackground: false,
-        
+        enabled 
     });
     
     return {

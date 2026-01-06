@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { baseDeDadosSchema } from "../schema/base-de-dados-schema";
 import z from "zod";
@@ -14,7 +14,9 @@ import { TextInput } from "@/components/layout/form/form";
 import Papa from "papaparse";
 import { cn } from "@/lib/utils";
 import { useAdicionaBaseDados } from "../api/adiciona-base-dados";
+import { toast } from "sonner";
 
+const colunasObrigatorias = ['telefone', 'whatsapp', 'email'];
 export default function FormCriaBaseDados() {
     const [open, setOpen] = useState(false);
     const form = useForm<z.infer<typeof baseDeDadosSchema>>({
@@ -26,32 +28,50 @@ export default function FormCriaBaseDados() {
         },
     });
 
+    useEffect(() => {
+        form.reset();
+    }, [open]);
     const { isDirty, isValid } = form.formState;
 
     function handleFileChange(event: React.ChangeEvent<HTMLInputElement>, onChange: (file: File | null) => void) {
         const file = event.target.files?.[0];
-
         if (!file) return;
 
         onChange(file);
 
         Papa.parse(file, {
             header: true,
-            preview: 5,
             skipEmptyLines: true,
+            preview: 5,
 
             complete: (result) => {
-                const columns = result.meta.fields ?? [];
+                const colunas = result.meta.fields;
 
-                if (columns.length === 0) {
-                    form.setError("estrutura", {
+                if (!colunas || colunas.length === 0) {
+                    form.setError("arquivo", {
                         type: "manual",
                         message: "O CSV não possui cabeçalho válido",
                     });
                     return;
                 }
+                const colunasEncontradas: string[] = [];
 
-                form.setValue("estrutura", columns, {
+                for (const coluna of colunas) {
+                    if (colunasObrigatorias.includes(coluna.toLowerCase().trim())) {
+                        colunasEncontradas.push(coluna.toLowerCase().trim());
+                    }
+                }
+                if (colunasEncontradas.length === 0) {
+                    form.setError("arquivo", {
+                        type: "manual",
+                        message: "O CSV não possui colunas obrigatorias para validação.",
+                    });
+                    return;
+                }
+
+                form.clearErrors("arquivo");
+
+                form.setValue("estrutura", colunas, {
                     shouldValidate: true,
                     shouldDirty: true,
                 });
@@ -74,16 +94,24 @@ export default function FormCriaBaseDados() {
             formData.append('nome', data.nome);
             formData.append('arquivo', data.arquivo);
 
-            await adicionaBaseDados(formData);
+            const { sucesso } = await adicionaBaseDados(formData);
+            if (sucesso) {
+                toast.success('Base de dados criada com sucesso!');
+                setOpen(false);
+
+            }
+
         } catch (error) {
-            console.error('Erro no submit:', error);
+            if (error instanceof Error) {
+                toast.error('Erro ao criar a base de dados: ' + error.message);
+            }
         }
     });
 
     return (
         <>
             <Button onClick={() => setOpen(true)}>
-                <Plus className="h-4 w-4"/> <p>Criar Base de Dados</p>
+                <Plus className="h-4 w-4" /> <p>Criar Base de Dados</p>
             </Button>
             <Dialog open={open} onOpenChange={setOpen} >
                 <DialogContent className=" max-h-[90vh] w-[90vw] md:max-w-[50vw] lg:max-w-[40vw] overflow-y-auto " >
@@ -103,9 +131,7 @@ export default function FormCriaBaseDados() {
                                     control={form.control}
                                 />
 
-                                <Controller
-                                    name="arquivo"
-                                    control={form.control}
+                                <Controller name="arquivo" control={form.control}
                                     render={({ field, fieldState }) => (
                                         <Field>
                                             <FieldLabel htmlFor={field.name} className="text-lg">Selecione o arquivo</FieldLabel>
@@ -126,12 +152,8 @@ export default function FormCriaBaseDados() {
                             >
                                 Cancelar
                             </Button>
-                            <Button
-                                type="submit"
-                                className="flex-1 font-semibold text-lg"
-                                disabled={!isDirty || !isValid}
-                            >
-                                {isPending && <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enviando</> }
+                            <Button type="submit" className="flex-1 font-semibold" disabled={!isDirty || !isValid}>
+                                {isPending && <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enviando</>}
                                 {!isPending && <p>Enviar</p>}
                             </Button>
                         </div>

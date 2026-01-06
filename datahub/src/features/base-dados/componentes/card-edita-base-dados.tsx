@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { PenBox, Trash2 } from "lucide-react";
+import { PenBox } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRetornaBaseDados } from "../api/retorna-base-dados";
 import { Spinner } from "@/components/ui/spinner";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FieldGroup } from "@/components/ui/field";
 import { TextInput } from "@/components/layout/form/form";
 import { useForm } from "react-hook-form";
@@ -81,9 +80,7 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
     const renderDialogContent = () => {
         if (isLoading) {
             return (
-                <Skeleton className="flex w-full h-full items-center justify-center">
                     <Spinner className="size-8 animate-spin" />
-                </Skeleton>
             );
         }
 

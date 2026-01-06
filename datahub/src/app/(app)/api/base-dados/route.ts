@@ -20,15 +20,15 @@ export async function POST(request: NextRequest) {
     const usuarioId = await retornaPayloadSemDescriptografar().then((payload) => payload?.usuarioId);
 
     if (!usuarioId) {
-        return NextResponse.json({ status: SessaoErrorType.USUARIO_NAO_LOGADO, message: 'Usuário não logado.' }, { status: 401 });
+        return NextResponse.json({ code_error: SessaoErrorType.USUARIO_NAO_LOGADO, mensagem: 'Usuário não logado.' }, { status: 401 });
     }
 
     if (!csv || csv.size === 0) {
-        return NextResponse.json({ status: BaseDadosErrorType.CSV_INVALIDO, message: 'Arquivo inválido.' }, { status: 400 });
+        return NextResponse.json({ code_error: BaseDadosErrorType.CSV_INVALIDO, mensagem: 'Arquivo inválido.' }, { status: 400 });
     }
 
     if (!TIPOS_PERMITIDOS.includes(csv.type)) {
-        return NextResponse.json({ status: BaseDadosErrorType.CSV_INVALIDO, message: 'Apenas arquivos CSV são permitidos.' }, { status: 400 });
+        return NextResponse.json({ code_error: BaseDadosErrorType.CSV_INVALIDO, mensagem: 'Apenas arquivos CSV são permitidos.' }, { status: 400 });
     }
 
     try {
@@ -38,12 +38,12 @@ export async function POST(request: NextRequest) {
     } catch (error: unknown) {
         if (error instanceof BaseDadosError){
             if(error.code === BaseDadosErrorType.CSV_INVALIDO || error.code === BaseDadosErrorType.CSV_SEM_COLUNAS_OBRIGATORIAS) {
-                return NextResponse.json({ status: error.code, message: error.message, validacao: error.validacao }, { status: 400 });
+                return NextResponse.json({ code_error: error.code, mensagem: error.message, validacao: error.validacao }, { status: 400 });
             }
         }else if(error instanceof Error){
-            return NextResponse.json({ status: 'ERROR', message: "Erro interno de servidor" }, { status: 500 });
+            return NextResponse.json({ code_error: 'ERROR', mensagem: "Erro interno de servidor" }, { status: 500 });
         }else{
-            return NextResponse.json({ status: 'ERROR', message: "Erro interno de servidor" }, { status: 500 });
+            return NextResponse.json({ code_error: 'ERROR', mensagem: "Erro interno de servidor" }, { status: 500 });
         }
     }
 

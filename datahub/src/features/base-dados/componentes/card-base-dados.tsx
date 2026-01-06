@@ -19,7 +19,7 @@ interface CardBaseDadosProps {
 
 export default function CardBaseDados({ id, nome, clientesCount, updatedAt, createdAt, estrutura, pageParams }: CardBaseDadosProps) {
     return (
-        <Card className="h-full flex flex-col border-2 border-transparent hover:shadow-lg hover:border-gray-200 transition-all duration-300">
+        <Card className="h-full flex flex-col border-2 border-transparent hover:shadow-lg hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-300">
             <CardHeader>
                 <CardTitle className="flex flex-col gap-2 justify-between truncate">
                     <div className="flex w-full justify-between items-center gap-2">

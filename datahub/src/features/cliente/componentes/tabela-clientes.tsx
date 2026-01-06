@@ -7,8 +7,6 @@ import { constroiClienteColunas } from "./coluna-cliente";
 import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
 import SeletorColunas from "@/components/layout/seletor-colunas";
 import { useDebounce } from "use-debounce";
-import { set } from "zod";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface TabelaClientesProps {
     baseDadosId: string;
@@ -49,9 +47,7 @@ export default function TabelaClientes({ baseDadosId, estrutura }: TabelaCliente
     
     if (isLoading) {
         return (
-            <div className="flex h-full w-full items-center justify-center p-4">
-                <Skeleton className="h-full w-full" />
-            </div>
+            <Spinner className="size-8 animate-spin" />
         );
     }
 

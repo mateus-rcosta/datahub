@@ -8,27 +8,23 @@ import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
 import { useDebounce } from "use-debounce";
 import { Paginacao } from "@/components/layout/pagination";
 import { useLimiteResponsivo } from "@/hooks/use-limite-responsivo";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function BasesDados() {
   const [page, setPage] = useState(1);
   const limit = useLimiteResponsivo();
-
   const [pesquisa, setPesquisa] = useState("");
   const [pesquisaDebouncing] = useDebounce(pesquisa, 500);
-
-  // sempre que o limit mudar, volta para página 1
-  useEffect(() => { setPage(1); }, [limit]);
 
   // reseta ao digitar
   useEffect(() => {
     setPage(1);
-  }, [pesquisaDebouncing, pesquisa]);
+  }, [pesquisaDebouncing, limit]);
 
-  const { data, isLoading, isFetching } = useRetornaBasesDados({ pesquisa: pesquisaDebouncing, page, limit });
+  const { data, isLoading, isFetching } = useRetornaBasesDados({ pesquisa: pesquisaDebouncing, page, limit }, { enabled: limit !== undefined });
 
-  if (isLoading) return (
+
+  if (isLoading || limit === undefined) return (
     <Spinner className="size-8 animate-spin m-4" />
   );
 

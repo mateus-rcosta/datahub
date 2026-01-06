@@ -79,6 +79,7 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
         return {
             sucesso: false,
             code: parsed?.code ?? `HTTP_${res.status}`,
+            code_error: parsed?.code_error ?? null,
             mensagem: parsed?.mensagem ?? `HTTP error ${res.status}`,
             validacao: parsed?.validacao,
         };

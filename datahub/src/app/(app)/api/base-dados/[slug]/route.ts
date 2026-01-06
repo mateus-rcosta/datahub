@@ -3,7 +3,7 @@ import { retornaBaseDados } from "@/features/base-dados/services/retorna-base-da
 import { env } from "@/lib/env";
 import { NextResponse } from "next/server";
 
-export const GET = async (request: Request, { params }: { params: { slug: string } }) => {
+export const GET = async (request: Request, { params }: { params: Promise<{ slug: string }> }) => {
 
     const path = env.APP_URL;
     const from = request.headers.get("x-requested-by");

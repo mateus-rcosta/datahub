@@ -28,8 +28,8 @@ export default function CardUsuario({  usuario }: CardUsuarioProps) {
             </Button>
             }
             
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="max-w-[85%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[60%] max-h-[80vh] sm:max-h-[75vh] md:max-h-[70vh] flex flex-col h-full overflow-y-auto">
+            <Dialog open={open} onOpenChange={setOpen} >
+                <DialogContent className="max-w-[85%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[60%] max-h-[80vh] sm:max-h-[75vh] md:max-h-[70vh] flex flex-col h-full overflow-y-hidden">
                     <DialogHeader>
                         <DialogTitle>{usuario ? "Editar Usuário" : "Adicionar Novo Usuário"}</DialogTitle>
                     </DialogHeader>

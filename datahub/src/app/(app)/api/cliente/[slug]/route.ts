@@ -2,7 +2,7 @@ import retornaClientes from '@/features/cliente/service/retorna-clientes';
 import { NextRequest, NextResponse } from 'next/server';
 import { env } from 'process';
 
-export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
     const path = env.APP_URL;
     const from = request.headers.get("x-requested-by");
 
@@ -30,11 +30,11 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
         page = 1;
     }
 
-    if(!campoPesquisa) {
+    if (!campoPesquisa) {
         campoPesquisa = "";
     }
 
-    const usuarios = await retornaClientes({ pesquisa, page, limit, campoPesquisa}, slug);
+    const usuarios = await retornaClientes({ pesquisa, page, limit, campoPesquisa }, slug);
 
     return new NextResponse(
         JSON.stringify({ dados: usuarios.dados, hasNext: usuarios.hasNext, hasPrevious: usuarios.hasPrevious, limit: usuarios.limit, page: usuarios.page, total: usuarios.total }),

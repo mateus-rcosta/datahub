@@ -47,7 +47,7 @@ export default function SwitchUsuario({ id, ativo, nome }: Props) {
             checked={ativo}
             onCheckedChange={onSubmit}
             disabled={isExecuting}
-            className="max-w-8 data-[state=unchecked]:bg-black"
+            className="max-w-8"
         />
     );
 }
