@@ -16,6 +16,8 @@ const envSchema = z.object({
   UPCHAT_QUEUE_ID: z.string().min(1),
 
   UPCHAT_API_KEY: z.string().min(1),
+
+  UPCHAT_URL: z.string().min(1),
 });
 
 const _env = envSchema.safeParse(process.env);
