@@ -39,7 +39,6 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
             .join('&');
         if (qs) url += (url.includes('?') ? '&' : '?') + qs;
     }
-
     const headers: Record<string, string> = {
         ...extraHeaders,
     };
@@ -78,7 +77,7 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
 
         return {
             sucesso: false,
-            code: parsed?.code ?? `HTTP_${res.status}`,
+            code: res.status,
             code_error: parsed?.code_error ?? null,
             mensagem: parsed?.mensagem ?? `HTTP error ${res.status}`,
             validacao: parsed?.validacao,
@@ -87,13 +86,15 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
         if (error instanceof Error) {
             return {
                 sucesso: false,
-                code: 'NETWORK_ERROR',
+                code: 500,
+                code_error: 'NETWORK_ERROR',
                 mensagem: error?.message ?? 'Network error',
             };
         }
         return {
             sucesso: false,
-            code: 'ERROR',
+            code: 500,
+            code_error: 'ERROR',
             mensagem: 'error',
         };
     }

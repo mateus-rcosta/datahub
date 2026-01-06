@@ -47,7 +47,7 @@ export interface ApiSuccesso<T = unknown> {
 
 export interface ApiFalha {
   sucesso: false;
-  code: string;
+  code: number;
   code_error?:string;
   mensagem?: string;
   validacao?: Record<string, string[]>;
@@ -131,3 +131,12 @@ export interface IntegracaoJSONBUpchatTemplate{
 }
 
 export type IntegracaoDados = IntegracaoJSONBUpchat | IntegracaoJSONBIXC;
+
+// IntegracaoHealtchek 
+
+export interface IntegracaoHealthcheckUpchat {
+  name: string;
+  connected: boolean; // porém não autenticado, precisa se autenticar para utilizar
+  authenticated: boolean; // após conectado é autenticado
+  enabled: boolean; // se habilitado ou não por comando de admin
+}

@@ -19,10 +19,10 @@ export const GET = async (request: Request, { params }: { params: Promise<{ slug
         return NextResponse.json(baseDados);
     }catch(error: unknown){
         if(error instanceof BaseDadosError){
-            return NextResponse.json({ status: error.code, message: error.message, validacao: error.validacao }, { status: 400 });
+            return NextResponse.json({ code_error: error.code, mensagem: error.message, validacao: error.validacao }, { status: 400 });
         }
 
-        return NextResponse.json({ status: 'ERROR', message: "Erro interno de servidor" }, { status: 500 });
+        return NextResponse.json({ code_error: 'SERVER_ERROR', mensagem: "Erro interno de servidor" }, { status: 500 });
 
     }
 };

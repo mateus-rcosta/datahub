@@ -94,13 +94,21 @@ export default function FormCriaBaseDados() {
             formData.append('nome', data.nome);
             formData.append('arquivo', data.arquivo);
 
-            const { sucesso } = await adicionaBaseDados(formData);
-            if (sucesso) {
+            const resultado = await adicionaBaseDados(formData);
+            if (resultado.sucesso) {
                 toast.success('Base de dados criada com sucesso!');
                 setOpen(false);
-
             }
 
+            if (!resultado.sucesso) {
+                if (resultado.code_error === "CSV_SEM_COLUNAS_OBRIGATORIAS") {
+                    toast.error('Erro ao criar a base de dados: ' + 'CSV sem colunas obrigatórias para validação.');
+                }else if (resultado.code_error === "CSV_INVALIDO") {
+                    toast.error('Erro ao criar a base de dados: ' + 'Arquivo CSV inválido.');
+                } else {
+                    toast.error('Erro ao criar a base de dados: ' + 'Erro de servidor, tentar novamente mais tarde');
+                }
+            }
         } catch (error) {
             if (error instanceof Error) {
                 toast.error('Erro ao criar a base de dados: ' + error.message);

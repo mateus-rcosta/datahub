@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiRequest } from "@/lib/api";
 import { ApiFalha, ApiSuccesso } from "@/types/types";
-import { toast } from "sonner";
 
 
 const adicionaBaseDados = async (payload: FormData) => {
@@ -22,17 +21,6 @@ export const useAdicionaBaseDados = () => {
             if (result.sucesso) {
                 queryClient.invalidateQueries({ queryKey: ['baseDados'] });
             }
-            
-            if (!result.sucesso) {
-                console.log("result", result);
-                if(result.code_error === "CSV_SEM_COLUNAS_OBRIGATORIAS"){
-                    toast.error('Erro ao criar a base de dados: '+ 'CSV sem colunas obrigatórias para validação.');
-                }
-
-                if(result.code_error === "CSV_INVALIDO"){
-                    toast.error('Erro ao criar a base de dados: '+ 'Arquivo CSV inválido.');
-                }
-            }
         },
     });
 
@@ -41,5 +29,6 @@ export const useAdicionaBaseDados = () => {
         isPending: mutation.isPending,
         status: mutation.status,
         reactQueryError: mutation.error,
+        data: mutation.data
     };
 };
