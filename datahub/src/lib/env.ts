@@ -3,7 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   DATABASE_URL: z.url(),
 
-  NODE_ENV: z.enum(["development", "test", "production"]),
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
   JWT_SECRET: z.string().min(32).default("supersenhasecretaparapodeutilizaremdesenvolvimento"),
 
@@ -13,11 +13,7 @@ const envSchema = z.object({
 
   SALT_ROUNDS: z.coerce.number().int().positive().default(10),
 
-  UPCHAT_QUEUE_ID: z.string().min(1),
-
-  UPCHAT_API_KEY: z.string().min(1),
-
-  UPCHAT_URL: z.string().min(1),
+  CHAVE_CRIPTOGRAFIA: z.string().length(64, "Chave deve ter exatamente 64 caracteres").regex(/^[0-9a-fA-F]{64}$/, "Chave deve ser hexadecimal válida (0-9, a-f)").default("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"),
 });
 
 const _env = envSchema.safeParse(process.env);

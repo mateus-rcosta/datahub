@@ -5,22 +5,23 @@ export const ixcSchema = z.object({
 });
 
 const templateSchema = z.object({
-  id: z.string().min(1, "ID obrigatório"),
+  id: z.coerce.number("ID é necessário ser um número").int("ID é um número inteiro").positive("ID tem que ser positivo"),
   nome: z.string().min(1, "Nome obrigatório"),
   texto: z.string().min(1, "Texto obrigatório"),
   tipo: z.enum(['MARKETING', 'UTILITY']),
 });
 
 export const upchatSchema = z.object({
-  queueId: z.string().min(1, "Queue ID obrigatório"),
-  apiKey: z.string().min(1, "API Key obrigatória"),
+  url: z.url("URL válida é necessária"),
+  queueId: z.coerce.number("Queue ID é necessário ser um número").int("Queue ID é um número inteiro").positive("Queue ID tem que ser positivo"),
+  apiKey: z.string(),
   templates: z.array(templateSchema),
 });
 
 export const configSchema = z.object({
   config: z.record(z.string(), z.any())
     .refine(
-      config => Object.values(config).some(v => 
+      config => Object.values(config).some(v =>
         typeof v === "string" && v.trim() !== ""
       ),
       {
@@ -31,10 +32,8 @@ export const configSchema = z.object({
 
 export const baseIntegracaoSchema = z.object({
   config: z.union([
-    // IXC
     ixcSchema,
-    // Upchat
-    upchatSchema 
+    upchatSchema
   ]),
 });
 

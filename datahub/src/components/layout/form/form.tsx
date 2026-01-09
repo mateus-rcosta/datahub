@@ -43,7 +43,7 @@ export function TextInput<T extends FieldValues = FieldValues, U extends FieldPa
             render={({ field, fieldState }) => (
                 <Field>
                     <FieldLabel htmlFor={field.name} className="text-lg">{label}</FieldLabel>
-                    <Input {...field} {...rest} id={field.name} aria-invalid={fieldState.invalid} placeholder={label} className={cn("w-full", rest.className)} />
+                    <Input {...field} {...rest} id={field.name} aria-invalid={fieldState.invalid} placeholder={rest.placeholder ? rest.placeholder : label} className={cn("w-full", rest.className)} />
                     {fieldState.error && <FieldError errors={[fieldState.error]} />}
                 </Field>
 

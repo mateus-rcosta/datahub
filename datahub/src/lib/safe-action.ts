@@ -4,12 +4,13 @@ import { UsuarioError } from "@/features/usuario/exceptions/usuario-error";
 import { SessaoError, SessaoErrorType } from "./sessao-error";
 import { retornaSessaoUsuario } from "./sessao";
 import { ClienteError } from "@/features/cliente/exceptions/cliente-error";
+import { IntegracaoError } from "@/features/integracao/exceptions/integracao-error";
 
 export const actionClient = createSafeActionClient({
   handleServerError(e) {
 
-    if (e instanceof AuthError || e instanceof UsuarioError || e instanceof SessaoError || e instanceof ClienteError) {
-      return e.code;
+    if (e instanceof AuthError || e instanceof UsuarioError || e instanceof SessaoError || e instanceof ClienteError || e instanceof IntegracaoError) {
+      return {code: e.code, message: e.message};
     }
 
     return AuthErrorType.ERRO_INTERNO;

@@ -11,7 +11,7 @@ const retornaIntegracaoApi = async (id:number) => {
     });
 };
 
-export function useRetornaIntegracao(id:number) {
+export function useRetornaIntegracao(id:number, enabled=true) {
     const query = useQuery<ApiSuccesso<Integracao<IntegracaoDados>> | ApiFalha>({
         queryKey: ['integracoes', id],
         queryFn: () => retornaIntegracaoApi(id),
@@ -20,6 +20,7 @@ export function useRetornaIntegracao(id:number) {
         staleTime: 60 * 1000 * 5,
         refetchInterval: 60 * 1000 * 5,
         refetchIntervalInBackground: false,
+        enabled
     });
 
     return {

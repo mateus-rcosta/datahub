@@ -2,7 +2,7 @@
 import { Spinner } from "@/components/ui/spinner";
 import CardIntegracao from "./card-integracao";
 import type { Integracao, IntegracaoDados } from "@/types/types";
-import { useRetornaIntegracoes } from "../api/retornar-integracoes-api";
+import { useRetornaIntegracoes } from "../api/retorna-integracoes-api";
 
 const descricaoIntegracoes: Record<string, string> = {
     "Upchat": "Plataforma OmniChannel e CRM",

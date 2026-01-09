@@ -1,5 +1,7 @@
+import { upchatSchema } from "@/features/integracao/schema/integracao";
 import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
 import { JWTPayload } from "jose";
+import z from "zod";
 
 // Usuário
 export interface JSONBUsuarioPermissoes {
@@ -113,8 +115,9 @@ export interface Integracao<IntegracaoDados> {
 }
 
 export interface IntegracaoJSONBUpchat {
-  queueId: string;
+  queueId: number;
   apiKey: string;
+  url: string;
   templates: IntegracaoJSONBUpchatTemplate[];
 }
 
@@ -124,7 +127,7 @@ export interface IntegracaoJSONBIXC {
 
 
 export interface IntegracaoJSONBUpchatTemplate{
-  id: string;
+  id: number;
   nome: string;
   texto: string;
   tipo: 'MARKETING' | 'UTILITY';
@@ -132,11 +135,27 @@ export interface IntegracaoJSONBUpchatTemplate{
 
 export type IntegracaoDados = IntegracaoJSONBUpchat | IntegracaoJSONBIXC;
 
-// IntegracaoHealtchek 
+type IntegracaoStrategy = {
+    schema: z.ZodSchema;
+    camposSensiveis: readonly string[];
+};
 
+export const INTEGRACOES: Record<string, IntegracaoStrategy> = {
+    Upchat: {
+        schema: upchatSchema,
+        camposSensiveis: ['apiKey'],
+    },
+};
+
+// IntegracaoHealtchek 
 export interface IntegracaoHealthcheckUpchat {
   name: string;
   connected: boolean; // porém não autenticado, precisa se autenticar para utilizar
   authenticated: boolean; // após conectado é autenticado
   enabled: boolean; // se habilitado ou não por comando de admin
+}
+
+export interface HealthchekResponse {
+  status: "unhealthy" | "healthy";
+  mensagem: string;
 }
