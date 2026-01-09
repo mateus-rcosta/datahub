@@ -7,6 +7,7 @@ import { constroiClienteColunas } from "./coluna-cliente";
 import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
 import SeletorColunas from "@/components/layout/seletor-colunas";
 import { useDebounce } from "use-debounce";
+import { cn } from "@/lib/utils";
 
 interface TabelaClientesProps {
     baseDadosId: string;
@@ -116,14 +117,10 @@ export default function TabelaClientes({ baseDadosId, estrutura }: TabelaCliente
                 </div>
             </div>
 
-            {isFetching && (
-                <div className="flex">
-                    <Spinner className="animate-spin" />
-                </div>
-            )}
+            
 
             {/* Área scrollável da tabela */}
-            <div className="flex-1 min-h-0 relative">
+            <div className={cn("flex-1 min-h-0 relative", isFetching && "opacity-60")}>
                 <Tabela
                     columns={colunas}
                     data={dadosNormalizados}
