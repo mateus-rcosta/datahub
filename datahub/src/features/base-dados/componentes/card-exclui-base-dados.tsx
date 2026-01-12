@@ -36,7 +36,7 @@ export default function CardExcluiBaseDados({ id, nome, pageParams, onClose }: C
                 toast.warning("Erro ao excluir base de dados.");
             }
             if (serverError) {
-                const mensagemErro = MESSAGENS_ERRO[serverError as BaseDadosErrorType] || "Erro desconhecido";
+                const mensagemErro = MESSAGENS_ERRO[serverError.code as BaseDadosErrorType] || "Erro desconhecido";
                 setOpen(false);
                 onClose();
                 toast.warning("Erro ao excluir base de dados: " + mensagemErro);

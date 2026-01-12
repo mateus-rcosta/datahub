@@ -53,7 +53,7 @@ export default function FormCriarUsuario({ onClose }: FormCriarUsuarioProps) {
 
         if (serverError) {
           const mensagemErro =
-            MESSAGENS_ERRO[serverError as UsuarioErrorType] ?? "Erro desconhecido";
+            MESSAGENS_ERRO[serverError.code as UsuarioErrorType] ?? "Erro desconhecido";
 
           toast.error("Erro ao criar usuário: " + mensagemErro);
         }

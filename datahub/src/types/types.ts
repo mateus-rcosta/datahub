@@ -42,19 +42,6 @@ export interface ApiPagination<T> {
   total: number;
 }
 
-export interface ApiSuccesso<T = unknown> {
-  sucesso: true;
-  dados: T;
-}
-
-export interface ApiFalha {
-  sucesso: false;
-  code: number;
-  code_error?:string;
-  mensagem?: string;
-  validacao?: Record<string, string[]>;
-}
-
 export interface PageParams {
   pesquisa: string;
   page: number;

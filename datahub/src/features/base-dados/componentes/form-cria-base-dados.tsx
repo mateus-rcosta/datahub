@@ -15,6 +15,8 @@ import Papa from "papaparse";
 import { cn } from "@/lib/utils";
 import { useAdicionaBaseDados } from "../api/adiciona-base-dados";
 import { toast } from "sonner";
+import { BaseDadosError, BaseDadosErrorType } from "../exceptions/base-dados-error";
+import { ApiError } from "@/lib/api-error";
 
 const colunasObrigatorias = ['telefone', 'whatsapp', 'email'];
 export default function FormCriaBaseDados() {
@@ -89,30 +91,29 @@ export default function FormCriaBaseDados() {
     const { adicionaBaseDados, isPending } = useAdicionaBaseDados();
 
     const handleSubmit = form.handleSubmit(async (data) => {
+        const formData = new FormData();
+        formData.append("nome", data.nome);
+        formData.append("arquivo", data.arquivo);
+
         try {
-            const formData = new FormData();
-            formData.append('nome', data.nome);
-            formData.append('arquivo', data.arquivo);
+            await adicionaBaseDados(formData);
 
-            const resultado = await adicionaBaseDados(formData);
-            if (resultado.sucesso) {
-                toast.success('Base de dados criada com sucesso!');
-                setOpen(false);
-            }
+            toast.success("Base de dados criada com sucesso!");
+            setOpen(false);
+        } catch (err) {
+            if (err instanceof ApiError) {
+                switch (err.codeError) {
+                    case BaseDadosErrorType.CSV_SEM_COLUNAS_OBRIGATORIAS:
+                        toast.error("Erro ao criar a base de dados: CSV sem colunas obrigatórias.");
+                        return;
 
-            if (!resultado.sucesso) {
-                if (resultado.code_error === "CSV_SEM_COLUNAS_OBRIGATORIAS") {
-                    toast.error('Erro ao criar a base de dados: ' + 'CSV sem colunas obrigatórias para validação.');
-                }else if (resultado.code_error === "CSV_INVALIDO") {
-                    toast.error('Erro ao criar a base de dados: ' + 'Arquivo CSV inválido.');
-                } else {
-                    toast.error('Erro ao criar a base de dados: ' + 'Erro de servidor, tentar novamente mais tarde');
+                    case BaseDadosErrorType.CSV_INVALIDO:
+                        toast.error("Erro ao criar a base de dados: Arquivo CSV inválido.");
+                        return;
                 }
             }
-        } catch (error) {
-            if (error instanceof Error) {
-                toast.error('Erro ao criar a base de dados: ' + error.message);
-            }
+
+            toast.error("Erro ao criar a base de dados. Tente novamente mais tarde.");
         }
     });
 

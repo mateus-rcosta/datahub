@@ -1,7 +1,8 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { Tabela } from "@/components/layout/table/tabela";
-import { Spinner } from "@/components/ui/spinner"
+import { Spinner } from "@/components/ui/spinner";
 import { useRetornaClientesApi } from "../api/retornaClientesApi";
 import { constroiClienteColunas } from "./coluna-cliente";
 import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
@@ -13,73 +14,74 @@ interface TabelaClientesProps {
     baseDadosId: string;
     estrutura?: string[];
 }
-export default function TabelaClientes({ baseDadosId, estrutura }: TabelaClientesProps) {
-    const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(10);
+
+export default function TabelaClientes({ baseDadosId, estrutura = [] }: TabelaClientesProps) {
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
     const [pesquisa, setPesquisa] = useState("");
     const [campoPesquisa, setCampoPesquisa] = useState("");
-    const [pesquisaDebouncing] = useDebounce(pesquisa, 500);
-    const [colunasVisiveis, setColunasVisiveis] = useState<string[]>(["telefone", "email", "whatsapp"]);
+    const [colunasVisiveis, setColunasVisiveis] = useState<string[]>([ "telefone", "email", "whatsapp",]);
+    const [pesquisaDebounced] = useDebounce(pesquisa, 500);
 
-    // Define o primeiro campo
     useEffect(() => {
-        if (estrutura?.length && !campoPesquisa) {
-            const campoPadrao = estrutura.find(c =>
-                ["telefone", "email", "whatsapp", "acoes"].includes(c)
-            );
-
-            if (campoPadrao) {
-                setCampoPesquisa(campoPadrao);
-            }
+        if (estrutura.length && !campoPesquisa) {
+            const campoPadrao = estrutura.find((c) => ["telefone", "email", "whatsapp", "acoes"].includes(c));
+            if (campoPadrao) setCampoPesquisa(campoPadrao);
         }
     }, [estrutura, campoPesquisa]);
 
-    // reseta ao digitar
     useEffect(() => {
         setPage(1);
-    }, [pesquisaDebouncing, campoPesquisa]);
+    }, [pesquisaDebounced, campoPesquisa]);
 
-    const { dados: res, isLoading, isFetching } = useRetornaClientesApi({
-        pesquisa: pesquisaDebouncing,
+    const { dados, isLoading, isFetching, isError, error, initialData } = useRetornaClientesApi({
+        pesquisa: pesquisaDebounced,
         page,
         limit,
         campoPesquisa,
     }, baseDadosId);
-    
+
+
     if (isLoading) {
-        return (
-            <Spinner className="size-8 animate-spin" />
-        );
+        return <Spinner className="size-8 animate-spin" />;
     }
 
-    if (!res || !res.sucesso) {
+    if (isError) {
         return (
             <div className="flex flex-col items-center justify-center p-6 gap-2">
-                <p className="text-destructive font-semibold">Erro ao carregar os dados</p>
-                {res && !res.sucesso && res.mensagem && (
-                    <p className="text-sm text-muted-foreground">{res.mensagem}</p>
+                <p className="text-destructive font-semibold">
+                    Erro ao carregar os dados
+                </p>
+                {error instanceof Error && (
+                    <p className="text-sm text-muted-foreground">
+                        {error.message}
+                    </p>
                 )}
             </div>
         );
     }
 
-    const paginacao = res.dados;
-    const total = paginacao.total || 0;
+    /**
+     * Dados normalizados
+     */
+    const { dados: clientes = [], total = 0, } = dados ?? initialData;
     const pageCount = Math.ceil(total / limit);
 
-    const rawDados = paginacao.dados || [];
-
-    // 1. Extrai todas as chaves possíveis
+    /**
+     * Extrai chaves dinâmicas
+     */
     const chavesDinamicas = Array.from(
         new Set(
-            rawDados.flatMap(cliente =>
+            clientes.flatMap((cliente) =>
                 Object.keys(cliente.dados as Record<string, unknown>)
             )
         )
     );
 
-    // 2. Normaliza os dados (flatten)
-    const dadosNormalizados = rawDados.map(cliente => ({
+    /**
+     * Normaliza clientes (flatten)
+     */
+    const dadosNormalizados = clientes.map((cliente) => ({
         id: cliente.id,
         createdAt: cliente.createdAt,
         updatedAt: cliente.updatedAt,
@@ -96,30 +98,32 @@ export default function TabelaClientes({ baseDadosId, estrutura }: TabelaCliente
 
     return (
         <div className="flex flex-col h-full gap-3 p-4">
-            {/* Header fixo com controles */}
+            {/* Header */}
             <div className="flex flex-col sm:flex-row gap-2 shrink-0">
                 <div className="flex-1 min-w-0">
                     <InputPesquisa
                         state={pesquisa}
-                        useStatePesquisa={setPesquisa}
+                        useStatePesquisa={(value) => {
+                            setPesquisa(value);
+                            setPage(1);
+                        }}
                         total={total}
                         campoPesquisa={campoPesquisa}
                         useCampoPesquisa={setCampoPesquisa}
                         campos={estrutura}
                     />
                 </div>
+
                 <div className="shrink-0">
                     <SeletorColunas
-                        colunas={estrutura || []}
+                        colunas={estrutura}
                         colunasSelecionadas={colunasVisiveis}
                         onChange={setColunasVisiveis}
                     />
                 </div>
             </div>
 
-            
-
-            {/* Área scrollável da tabela */}
+            {/* Tabela */}
             <div className={cn("flex-1 min-h-0 relative", isFetching && "opacity-60")}>
                 <Tabela
                     columns={colunas}

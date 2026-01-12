@@ -15,7 +15,7 @@ export default async function PageUsuarios() {
   // Pre-fetch dos dados
   const usuarios = await retornaUsuarios({ pesquisa, page, limit });
   
-  queryClient.setQueryData(["usuarios", pesquisa, page, limit ], { sucesso: true, dados: usuarios });
+  queryClient.setQueryData(["usuarios", pesquisa, page, limit ], usuarios);
   
   return (
     <div className="w-full">

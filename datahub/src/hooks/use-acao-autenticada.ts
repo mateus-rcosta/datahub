@@ -1,6 +1,10 @@
 "use client";
+import { BaseDadosError } from "@/features/base-dados/exceptions/base-dados-error";
+import { ClienteError } from "@/features/cliente/exceptions/cliente-error";
+import { IntegracaoError } from "@/features/integracao/exceptions/integracao-error";
+import { UsuarioError } from "@/features/usuario/exceptions/usuario-error";
 import { getQueryClient } from "@/lib/react-query";
-import { SessaoErrorType } from "@/lib/sessao-error";
+import { SessaoError, SessaoErrorType } from "@/lib/sessao-error";
 import { useAction } from "next-safe-action/hooks";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -8,10 +12,7 @@ import { toast } from "sonner";
 type QueryKeyValue = string | number | boolean | null | undefined;
 type QueryKey = QueryKeyValue[];
 
-export type ServerError = {
-  code: string;
-  message: string;
-};
+export type ServerError =  SessaoError | IntegracaoError | BaseDadosError | UsuarioError | ClienteError;
 
 export type ActionError = {
   serverError?: ServerError;

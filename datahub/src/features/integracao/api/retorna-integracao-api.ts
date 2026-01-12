@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api";
-import { ApiSuccesso, ApiFalha, Integracao, IntegracaoDados } from "@/types/types";
+import { ApiError } from "@/lib/api-error";
+import { Integracao, IntegracaoDados } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 
 const retornaIntegracaoApi = async (id:number) => {
@@ -11,22 +12,20 @@ const retornaIntegracaoApi = async (id:number) => {
     });
 };
 
-export function useRetornaIntegracao(id:number, enabled=true) {
-    const query = useQuery<ApiSuccesso<Integracao<IntegracaoDados>> | ApiFalha>({
-        queryKey: ['integracoes', id],
-        queryFn: () => retornaIntegracaoApi(id),
-        placeholderData: (previousData) => previousData,
-        refetchOnWindowFocus: true,
-        staleTime: 60 * 1000 * 5,
-        refetchInterval: 60 * 1000 * 5,
-        refetchIntervalInBackground: false,
-        enabled
-    });
+export function useRetornaIntegracao(id: number, enabled = true) {
+  const query = useQuery<Integracao<IntegracaoDados>, ApiError>({
+    queryKey: ["integracoes", id],
+    queryFn: () => retornaIntegracaoApi(id),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  });
 
-    return {
-        isFetching: query.isFetching,
-        isLoading: query.isLoading,
-        data: query.data,
-        error: query.error,
-    }
+  return {
+    isFetching: query.isFetching,
+    isLoading: query.isLoading,
+    data: query.data,
+    error: query.error,
+    isError: query.isError,
+  };
 }

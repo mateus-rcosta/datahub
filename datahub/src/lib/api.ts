@@ -1,4 +1,4 @@
-import { ApiFalha, ApiSuccesso } from "@/types/types";
+import { ApiError } from "./api-error";
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -19,83 +19,57 @@ export interface ApiRequestOptions {
  * - Não lança para erros HTTP (4xx/5xx) — retorna ApiFalha
  * - Lança somente em casos extremos de rede (opcionalmente capturáveis)
  */
-export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<ApiSuccesso<T> | ApiFalha> {
-    const {
-        path,
-        method = 'GET',
-        body,
-        token,
-        credentials = 'same-origin',
-        query,
-        extraHeaders,
-        expectEmptyResponse = false,
-    } = opts;
+export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<T> {
+  const {
+    path,
+    method = "GET",
+    token,
+    credentials = "same-origin",
+    query,
+    extraHeaders,
+    expectEmptyResponse = false,
+  } = opts;
+  let body = opts.body;
+  let url = path;
+  if (query) {
+    const qs = Object.entries(query)
+      .filter(([, v]) => v !== undefined && v !== null)
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+      .join("&");
+    if (qs) url += (url.includes("?") ? "&" : "?") + qs;
+  }
 
-    let url = path;
-    if (query) {
-        const qs = Object.entries(query)
-            .filter(([, v]) => v !== undefined && v !== null)
-            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-            .join('&');
-        if (qs) url += (url.includes('?') ? '&' : '?') + qs;
+  const headers: Record<string, string> = { ...extraHeaders };
+
+  if (body !== undefined && body !== null) {
+    if (!(body instanceof FormData)) {
+      headers["Content-Type"] = "application/json";
+      body = JSON.stringify(body);
     }
-    const headers: Record<string, string> = {
-        ...extraHeaders,
-    };
+  }
 
-    let bodyToSend: BodyInit | undefined;
-    if (body !== undefined && body !== null) {
-        if (body instanceof FormData) {
-            bodyToSend = body;
-        } else {
-            headers['Content-Type'] = headers['Content-Type'] ?? 'application/json';
-            bodyToSend = typeof body === 'string' ? body : JSON.stringify(body);
-        }
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: body as BodyInit | undefined,
+    credentials,
+  });
+
+  let parsed;
+  try {
+    parsed = await res.json();
+  } catch {}
+
+  if (res.ok) {
+    if (expectEmptyResponse) {
+      return undefined as unknown as T;
     }
+    return parsed as T;
+  }
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    try {
-        const res = await fetch(url, {
-            method,
-            headers,
-            body: bodyToSend,
-            credentials,
-        });
-
-        const parsed = await res.json().catch(() => null);
-
-        if (res.ok) {
-            if (expectEmptyResponse) {
-                return { sucesso: true, dados: undefined as unknown as T };
-            }
-
-            return { sucesso: true, dados: parsed as T };
-        }
-
-        return {
-            sucesso: false,
-            code: res.status,
-            code_error: parsed?.code_error ?? null,
-            mensagem: parsed?.mensagem ?? `HTTP error ${res.status}`,
-            validacao: parsed?.validacao,
-        };
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            return {
-                sucesso: false,
-                code: 500,
-                code_error: 'NETWORK_ERROR',
-                mensagem: error?.message ?? 'Network error',
-            };
-        }
-        return {
-            sucesso: false,
-            code: 500,
-            code_error: 'ERROR',
-            mensagem: 'error',
-        };
-    }
+  throw new ApiError(parsed?.mensagem ?? `HTTP error ${res.status}`, res.status, parsed?.code_error ?? null, parsed);
 }

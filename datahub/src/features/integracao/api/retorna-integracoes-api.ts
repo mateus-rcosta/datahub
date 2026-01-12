@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api";
-import { ApiSuccesso, ApiFalha, Integracao, IntegracaoDados } from "@/types/types";
+import { ApiError } from "@/lib/api-error";
+import { Integracao, IntegracaoDados } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 
 const retornaIntegracoesApi = async () => {
@@ -12,7 +13,7 @@ const retornaIntegracoesApi = async () => {
 };
 
 export function useRetornaIntegracoes() {
-    const query = useQuery<ApiSuccesso<Integracao<IntegracaoDados>[]> | ApiFalha>({
+    const query = useQuery<Integracao<IntegracaoDados>[], ApiError> ({
         queryKey: ['integracoes'],
         queryFn: () => retornaIntegracoesApi(),
         placeholderData: (previousData) => previousData,

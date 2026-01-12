@@ -15,7 +15,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     try {
         const resultado = await verificaHealthcheck(Number(slug));
-        console.log(resultado);
         if (resultado === "healthy") {
           return NextResponse.json({ status: "healthy", mensagem: "Integração ativa." });  
         } 

@@ -7,6 +7,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { useDebounce } from 'use-debounce';
 import { InputPesquisa } from "@/components/layout/form/input-pesquisa";
 import { useRetornaUsuarios } from "../../api/retorna-usuario";
+import { da } from "zod/v4/locales";
 
 export default function TabelaUsuario() {
   const [page, setPage] = useState<number>(1);
@@ -14,7 +15,7 @@ export default function TabelaUsuario() {
   const [pesquisa, setPesquisa] = useState<string>("");
   const [pesquisaDebouncing] = useDebounce(pesquisa, 500);
 
-  const { data: res, isFetching, isLoading } = useRetornaUsuarios({
+  const { data, isFetching, isLoading, error, isError, initialData } = useRetornaUsuarios({
     pesquisa: pesquisaDebouncing,
     page,
     limit
@@ -25,7 +26,7 @@ export default function TabelaUsuario() {
     setPage(1);
   }, [pesquisaDebouncing, pesquisa]);
 
-  if (isLoading) {
+  if (isLoading ) {
     return (
       <div className="flex items-center justify-center p-6">
         <Spinner className="size-10" />
@@ -33,21 +34,23 @@ export default function TabelaUsuario() {
     );
   }
 
-  if (!res || !res.sucesso) {
+  if (isError) {
     return (
       <div className="flex flex-col items-center justify-center p-6 gap-2">
-        <p className="text-destructive font-semibold">Erro ao carregar os dados</p>
-        {res && !res.sucesso && res.mensagem && (
-          <p className="text-sm text-muted-foreground">{res.mensagem}</p>
+        <p className="text-destructive font-semibold">
+          Erro ao carregar os dados
+        </p>
+        {error instanceof Error && (
+          <p className="text-sm text-muted-foreground">
+            {error.message}
+          </p>
         )}
       </div>
     );
   }
 
-  const paginacao = res.dados;
-  const total = paginacao.total || 0;
+  const { dados = [], total = 0 } = data ?? initialData;
   const pageCount = Math.ceil(total / limit);
-  const displayedData = paginacao.dados || [];
 
   return (
     <div className="flex flex-col w-full justify-between px-6 py-3 gap-4">
@@ -62,7 +65,7 @@ export default function TabelaUsuario() {
       </div>
       <Tabela
         columns={columns}
-        data={displayedData}
+        data={dados}
         page={page}
         limit={limit}
         pageCount={pageCount}

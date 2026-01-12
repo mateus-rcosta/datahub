@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { FieldGroup } from "@/components/ui/field";
 import { TextInput } from "@/components/layout/form/form";
 import { upchatSchema } from "../../schema/integracao";
-import { ApiFalha, ApiSuccesso, Integracao, IntegracaoDados } from "@/types/types";
+import { Integracao, IntegracaoDados } from "@/types/types";
 import { useAcaoAutenticada } from "@/hooks/use-acao-autenticada";
 import { editaIntegracaoAction } from "../../actions/edita-integracao";
 import { BaseFormProps, FormHandle } from ".";
@@ -37,14 +37,11 @@ export const UpchatForm = forwardRef<FormHandle, BaseFormProps>(
             onSuccess: () => {
                 toast.success("Configuração salva com sucesso.");
                 const parsedConfig = upchatSchema.parse(form.getValues());
-                queryClient.setQueryData<ApiSuccesso<Integracao<IntegracaoDados>> | ApiFalha>(["integracoes", integracaoId], (old) => {
-                    if (!old || !old.sucesso) return old;
+                queryClient.setQueryData<Integracao<IntegracaoDados>>(["integracoes", integracaoId], (old) => {
+                    if (!old) return old;
                     return {
                         ...old,
-                        dados: {
-                            ...old.dados,
-                            config: parsedConfig,
-                        }
+                        config: parsedConfig,
                     }
 
                 });
@@ -68,7 +65,7 @@ export const UpchatForm = forwardRef<FormHandle, BaseFormProps>(
 
         useImperativeHandle(ref, () => ({
             submit: form.handleSubmit((data) => {
-                execute({ id: integracaoId, config:data });
+                execute({ id: integracaoId, config: data });
             }),
         }));
 

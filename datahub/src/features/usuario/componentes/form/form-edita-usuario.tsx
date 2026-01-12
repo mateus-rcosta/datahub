@@ -58,12 +58,12 @@ export default function FormEditarUsuario({ usuario, onClose }: FormEditarUsuari
         toast.success("Usuário atualizado com sucesso.");
         onClose();
       },
-      onError: ({ serverError, validationErrors, thrownError: error }) => {
+      onError: ({ serverError, validationErrors }) => {
         if (validationErrors) {
           toast.error("Erro ao atualizar usuário: verifique se os dados estão corretos.");
         }
         if (serverError) {
-          const mensagemErro = MESSAGENS_ERRO[serverError as UsuarioErrorType] || "Erro desconhecido";
+          const mensagemErro = MESSAGENS_ERRO[serverError.code as UsuarioErrorType] || "Erro desconhecido";
           toast.error("Erro ao atualizar usuário: " + mensagemErro);
         }
       }

@@ -52,7 +52,6 @@ export default async function editaIntegracao({ id, config }: IntegracaoInput) {
 
     for (const campo of strategy.camposSensiveis) {
         if (inputConfig[campo] !== "") {
-            console.log(campo, inputConfig[campo]);
             configFinal[campo] = criptografa(String(inputConfig[campo]));
         } else{
             configFinal[campo] = configAtual[campo];

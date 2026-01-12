@@ -38,7 +38,7 @@ export default function CardExcluiCliente({ id, baseDeDadosId, pageParams }: Car
                 toast.warning("Erro ao excluir cliente.");
             }
             if (serverError) {
-                const mensagemErro = MESSAGENS_ERRO[serverError as ClienteErrorType] || "Erro desconhecido";
+                const mensagemErro = MESSAGENS_ERRO[serverError.code as ClienteErrorType] || "Erro desconhecido";
                 setOpen(false);
                 toast.warning("Erro ao excluir cliente: " + mensagemErro);
             }

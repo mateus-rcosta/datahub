@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api";
-import { ApiSuccesso, ApiFalha, BaseDados } from "@/types/types";
+import { ApiError } from "@/lib/api-error";
+import { BaseDados } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 
 export const retornaBaseDadosApi = async ({ id }: {id: string}) => {
@@ -12,7 +13,7 @@ export const retornaBaseDadosApi = async ({ id }: {id: string}) => {
 };
 
 export function useRetornaBaseDados({ id }: {id: string}, options?: { enabled?: boolean }) {
-    const query = useQuery<ApiSuccesso<BaseDados> | ApiFalha>({
+    const query = useQuery<BaseDados, ApiError>({
         queryKey: ['baseDados', id],
         queryFn: () => retornaBaseDadosApi({id}),
         placeholderData: (previousData) => previousData,
@@ -28,5 +29,6 @@ export function useRetornaBaseDados({ id }: {id: string}, options?: { enabled?: 
         isLoading: query.isLoading,
         data: query.data,
         error: query.error,
+        isError: query.isError
     }
 }

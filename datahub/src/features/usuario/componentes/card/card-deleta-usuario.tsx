@@ -40,7 +40,7 @@ export default function ConfirmDelete({ usuarioNome, id }: CardDeletaUsuarioProp
         toast.warning("Erro ao deletar o usuário. Tente novamente mais tarde.");
       }
       if (serverError) {
-        const mensagemErro = MESSAGENS_ERRO[serverError as UsuarioErrorType] || "Erro desconhecido";
+        const mensagemErro = MESSAGENS_ERRO[serverError.code as UsuarioErrorType] || "Erro desconhecido";
         setOpen(false);
         toast.warning("Erro ao deletar o usuário: " + mensagemErro);
       }

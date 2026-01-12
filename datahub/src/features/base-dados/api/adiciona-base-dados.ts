@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiRequest } from "@/lib/api";
-import { ApiFalha, ApiSuccesso } from "@/types/types";
-
+import { ApiError } from "@/lib/api-error";
 
 const adicionaBaseDados = async (payload: FormData) => {
     return apiRequest<null>({
@@ -15,20 +14,17 @@ const adicionaBaseDados = async (payload: FormData) => {
 export const useAdicionaBaseDados = () => {
     const queryClient = useQueryClient();
 
-    const mutation = useMutation<ApiSuccesso<null> | ApiFalha, unknown, FormData>({
-        mutationFn: (formData) => adicionaBaseDados(formData),
-        onSuccess: (result) => {
-            if (result.sucesso) {
-                queryClient.invalidateQueries({ queryKey: ['baseDados'] });
-            }
+    const mutation = useMutation<null, ApiError, FormData>({
+        mutationFn: adicionaBaseDados,
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["baseDados"] });
         },
     });
 
     return {
         adicionaBaseDados: mutation.mutateAsync,
         isPending: mutation.isPending,
-        status: mutation.status,
-        reactQueryError: mutation.error,
-        data: mutation.data
+        data: mutation.data,
     };
 };

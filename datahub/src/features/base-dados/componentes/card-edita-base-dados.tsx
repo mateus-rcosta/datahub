@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { PenBox } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRetornaBaseDados } from "../api/retorna-base-dados";
 import { Spinner } from "@/components/ui/spinner";
 import { FieldGroup } from "@/components/ui/field";
@@ -28,7 +28,7 @@ const MESSAGENS_ERRO: Partial<Record<BaseDadosErrorType, string>> = {
 
 export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEditaBaseDadosProps) {
     const [open, setOpen] = useState(false);
-    const { data, isLoading } = useRetornaBaseDados({ id: baseDadosId }, { enabled: open });
+    const { data, isLoading, error, isError } = useRetornaBaseDados({ id: baseDadosId }, { enabled: open });
 
     const form = useForm({
         mode: "onChange",
@@ -40,15 +40,15 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
     });
 
     useEffect(() => {
-        if (data?.sucesso && data.dados) {
+        if (data) {
             form.reset({
-                id: baseDadosId, 
-                nome: data.dados.nome,
+                id: baseDadosId,
+                nome: data.nome,
             });
         }
     }, [data, form, baseDadosId]);
 
-   
+
     const nomeModificado = form.formState.dirtyFields.nome === true;
 
     const { execute, isExecuting } = useAcaoAutenticada(atualizaBaseDadosAction, {
@@ -62,7 +62,7 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
                 toast.error("Erro ao atualizar base de dados. Tente novamente mais tarde.");
             }
             if (serverError) {
-                const mensagemErro = MESSAGENS_ERRO[serverError as BaseDadosErrorType] || "Erro desconhecido";
+                const mensagemErro = MESSAGENS_ERRO[serverError.code as BaseDadosErrorType] || "Erro desconhecido";
                 toast.error("Erro ao atualizar base de dados: " + mensagemErro);
             }
         }
@@ -77,65 +77,86 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
         setOpen(false);
     };
 
-    const renderDialogContent = () => {
+    const conteudo = useMemo(() => {
         if (isLoading) {
-            return (
-                    <Spinner className="size-8 animate-spin" />
-            );
+            return <Spinner className="size-8 animate-spin" />;
         }
 
-        if (!data?.sucesso) {
+        if (isError) {
             return (
-                <div className="flex flex-col w-full items-center justify-center h-full gap-4">
+                <div className="flex flex-col items-center justify-center gap-4">
                     <p className="text-destructive font-semibold">
-                        Erro ao carregar os dados, por favor tente novamente mais tarde.
+                        Erro ao carregar os dados
                     </p>
+                    {error instanceof Error && (
+                        <p className="text-sm text-muted-foreground">
+                            {error.message}
+                        </p>
+                    )}
                     <Button onClick={() => setOpen(false)}>Fechar</Button>
                 </div>
             );
         }
 
+        if (!data) return null;
+
         return (
             <>
                 <div className="flex-1 overflow-y-auto px-2">
                     <FieldGroup className="flex flex-col gap-4">
-                        <TextInput label="Nome" type="text" name="nome" control={form.control}/>
+                        <TextInput
+                            label="Nome"
+                            type="text"
+                            name="nome"
+                            control={form.control}
+                        />
 
                         <div className="space-y-2 pt-4 border-t">
                             <h3 className="font-semibold text-sm">Informações</h3>
-                            {data.dados.usuarioNome && (
+
+                            {data.usuarioNome && (
                                 <div className="text-sm">
-                                    <span className="text-muted-foreground">Criado por: </span>
-                                    <span>{data.dados.usuarioNome}</span>
+                                    <span className="text-muted-foreground">
+                                        Criado por:
+                                    </span>{" "}
+                                    {data.usuarioNome}
                                 </div>
                             )}
 
-                            {data.dados.clientes !== undefined && (
+                            {data.clientes !== undefined && (
                                 <div className="text-sm">
-                                    <span className="text-muted-foreground">Clientes: </span>
-                                    <span>{data.dados.clientes}</span>
+                                    <span className="text-muted-foreground">
+                                        Clientes:
+                                    </span>{" "}
+                                    {data.clientes}
                                 </div>
                             )}
 
                             <div className="text-sm">
-                                <span className="text-muted-foreground">Criado em: </span>
-                                <span>{formatarData(data.dados.createdAt)}</span>
+                                <span className="text-muted-foreground">
+                                    Criado em:
+                                </span>{" "}
+                                {formatarData(data.createdAt)}
                             </div>
 
-                            {data.dados.updatedAt && (
+                            {data.updatedAt && (
                                 <div className="text-sm">
-                                    <span className="text-muted-foreground">Atualizado em: </span>
-                                    <span>{formatarData(data.dados.updatedAt)}</span>
+                                    <span className="text-muted-foreground">
+                                        Atualizado em:
+                                    </span>{" "}
+                                    {formatarData(data.updatedAt)}
                                 </div>
                             )}
                         </div>
 
-                        {data.dados.estrutura && data.dados.estrutura.length > 0 && (
+                        {data.estrutura?.length > 0 && (
                             <div className="space-y-2 pt-4 border-t">
-                                <h3 className="font-semibold text-sm">Estrutura do CSV</h3>
+                                <h3 className="font-semibold text-sm">
+                                    Estrutura do CSV
+                                </h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {data.dados.estrutura.map((campo, index) => (
-                                        <span key={index} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
+                                    {data.estrutura.map((campo, index) => (
+                                        <span key={index} className="px-3 py-1 bg-secondary rounded-md text-sm">
                                             {campo}
                                         </span>
                                     ))}
@@ -145,20 +166,33 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
                     </FieldGroup>
                 </div>
 
-                <DialogFooter className="shrink-0 flex-row justify-between items-center gap-2 pt-4 border-t">
-                    <CardExcluiBaseDados id={data.dados.id} nome={data.dados.nome} pageParams={pageParams} onClose={() => setOpen(false)}/>
+                <DialogFooter className="flex-row justify-between gap-2 pt-4 border-t">
+                    <CardExcluiBaseDados
+                        id={data.id}
+                        nome={data.nome}
+                        pageParams={pageParams}
+                        onClose={() => setOpen(false)}
+                    />
+
                     <div className="flex gap-2">
-                        <Button type="button" variant="outline" onClick={handleCancelar}> 
-                            Cancelar 
+                        <Button variant="outline" onClick={handleCancelar}>
+                            Cancelar
                         </Button>
-                        <Button type="button" onClick={handleSalvar} disabled={!nomeModificado || !form.formState.isValid || isExecuting}> 
-                            {isExecuting ? "Salvando..." : "Salvar Alterações"} 
+                        <Button
+                            onClick={handleSalvar}
+                            disabled={
+                                !nomeModificado ||
+                                !form.formState.isValid ||
+                                isExecuting
+                            }
+                        >
+                            {isExecuting ? "Salvando..." : "Salvar alterações"}
                         </Button>
                     </div>
                 </DialogFooter>
             </>
         );
-    };
+    }, [data, isLoading, isError, error, form, isExecuting, nomeModificado]);
 
     return (
         <>
@@ -167,18 +201,18 @@ export default function CardEditaBaseDados({ baseDadosId, pageParams }: CardEdit
             </Button>
 
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="max-w-[95%] sm:max-w-[90%] md:max-w-[80%] lg:max-w-[70%] h-[90vh] sm:h-[85vh] md:h-[80vh] flex flex-col">
-                    <DialogHeader className="shrink-0">
+                <DialogContent className="max-w-[95%] h-[90vh] flex flex-col">
+                    <DialogHeader>
                         <DialogTitle>
                             {isLoading
                                 ? "Carregando..."
-                                : data?.sucesso
-                                    ? data.dados.nome
-                                    : "Erro ao Carregar"}
+                                : isError
+                                    ? "Erro"
+                                    : data?.nome}
                         </DialogTitle>
                     </DialogHeader>
 
-                    {renderDialogContent()}
+                    {conteudo}
                 </DialogContent>
             </Dialog>
         </>

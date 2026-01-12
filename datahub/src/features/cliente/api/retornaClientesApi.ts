@@ -1,6 +1,7 @@
 import { apiRequest } from "@/lib/api";
-import { ApiPagination, Cliente, ApiSuccesso, ApiFalha, PageParams } from "@/types/types";
+import { ApiPagination, Cliente, PageParams } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
+import { init } from "next/dist/compiled/webpack/webpack";
 
 const retornaClientesApi = async (pesquisa: string, page: number, limit: number, campoPesquisa: string, id: string) => {
     return apiRequest<ApiPagination<Cliente>>({
@@ -13,7 +14,7 @@ const retornaClientesApi = async (pesquisa: string, page: number, limit: number,
 };
 
 export function useRetornaClientesApi({ pesquisa, page, limit, campoPesquisa }: PageParams, id: string) {
-    const query = useQuery<ApiSuccesso<ApiPagination<Cliente>> | ApiFalha>({
+    const query = useQuery<ApiPagination<Cliente>>({
         queryKey: ['clientes', pesquisa, page, limit, id],
         queryFn: () => retornaClientesApi(pesquisa, page, limit, campoPesquisa ? campoPesquisa : "",  id),
         placeholderData: (previousData) => previousData,
@@ -24,5 +25,10 @@ export function useRetornaClientesApi({ pesquisa, page, limit, campoPesquisa }: 
         isLoading: query.isLoading,
         dados: query.data,
         error: query.error,
+        isError: query.isError,
+        initialData: {
+            dados: [],
+            total: 0
+        },
     }
 }

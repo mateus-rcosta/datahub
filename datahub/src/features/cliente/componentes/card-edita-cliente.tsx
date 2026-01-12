@@ -56,7 +56,7 @@ export default function CardEditaCliente({ id, dados, baseDeDadosId, updatedAt, 
                 toast.warning("Erro ao editar cliente.");
             }
             if (serverError) {
-                const mensagemErro = MESSAGENS_ERRO[serverError as ClienteErrorType] || "Erro desconhecido";
+                const mensagemErro = MESSAGENS_ERRO[serverError.code as ClienteErrorType] || "Erro desconhecido";
                 setOpen(false);
                 toast.warning("Erro ao editar cliente: " + mensagemErro);
             }
