@@ -1,5 +1,5 @@
 
-import { IntegracaoError } from '@/features/integracao/exceptions/integracao-error';
+import { IntegracaoError, IntegracaoErrorType } from '@/features/integracao/exceptions/integracao-error';
 import { retornaIntegracao } from '@/features/integracao/services/retorna-integracao';
 import { NextRequest, NextResponse } from 'next/server';
 import { env } from 'process';
@@ -16,10 +16,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 
     try {
-        const integracao = await retornaIntegracao(Number(slug));
+        const integracao = await retornaIntegracao(slug);
         return new NextResponse(JSON.stringify(integracao));
-    }catch (error: unknown) {
+    } catch (error: unknown) {
         if (error instanceof IntegracaoError) {
+            if (error.code === IntegracaoErrorType.INTEGRACAO_NAO_ENCONTRADA) {
+                return NextResponse.json({ code_error: error.code, mensagem: error.message, validacao: error.validacao }, { status: 404 });
+            }
             return NextResponse.json({ code_error: error.code, mensagem: error.message }, { status: 400 });
         }
 

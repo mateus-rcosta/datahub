@@ -19,8 +19,10 @@ const envSchema = z.object({
 const _env = envSchema.safeParse(process.env);
 
 if (!_env.success) {
+  
   console.error("Variáveis de ambiente inválidas:");
-  console.error(_env.error.issues.map((issue) => `${issue.code} - ${issue.message}`));
+  console.error("loga aqui: "+process.env.DATABASE_URL)
+  console.error(_env.error.issues.map((issue) => `${issue.path} - ${issue.input} - ${issue.code} - ${issue.message}`));
   throw new Error("Erro ao validar variáveis de ambiente");
 }
 

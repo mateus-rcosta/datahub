@@ -1,10 +1,17 @@
 import { prisma } from "@/lib/database";
 import { IntegracaoError, IntegracaoErrorType } from "../exceptions/integracao-error";
-import { INTEGRACOES } from "@/types/types";
+import { IntegracaoNome } from "@/types/types";
+import { INTEGRACOES } from "../integracoes";
 
-export const retornaIntegracao = async (id: number) => {
-    const integracao = await prisma.integracao.findUnique({
-        where: { id },
+export const retornaIntegracao = async (nome: string) => {
+    const strategy = INTEGRACOES[nome as IntegracaoNome];
+
+    if (!strategy){
+        throw new IntegracaoError(IntegracaoErrorType.INTEGRACAO_NAO_ENCONTRADA, 'Integração não encontrada');
+    }
+
+    let integracao = await prisma.integracao.findFirst({
+        where: { nome },
         select: {
             id: true,
             status: true,
@@ -14,15 +21,16 @@ export const retornaIntegracao = async (id: number) => {
         }
     });
 
+
     if (!integracao) {
-        throw new IntegracaoError(IntegracaoErrorType.INTEGRACAO_NAO_ENCONTRADA, 'Integração não encontrada');
+        return {
+            nome,
+            status: false,
+            config: null,
+            updatedAt: null,
+        };
     }
 
-    const strategy = INTEGRACOES[integracao.nome];
-
-    if (!strategy) {
-        throw new IntegracaoError(IntegracaoErrorType.INTEGRACAO_NAO_SUPORTADA, `Integração "${integracao.nome}" não suportada`);
-    }
     const parsed = strategy.schema.safeParse(integracao.config);
 
     if (!parsed.success) {

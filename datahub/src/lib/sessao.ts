@@ -8,6 +8,7 @@ import { Prisma } from "@prisma/client";
 import { JWSSignatureVerificationFailed, JWTExpired } from "jose/errors";
 import { SessaoError, SessaoErrorType } from "./sessao-error";
 import { env } from "./env";
+import { insereCache, obtemCache, removeCache } from "./pg-cache";
 
 const JWT_SECRET = new TextEncoder().encode(env.JWT_SECRET);
 const EXPIRE_TIME_HOURS = env.JWT_EXPIRE_TIME_HOURS;
@@ -43,6 +44,8 @@ export const criaSessao = async (payload: AuthPayload) => {
       dados: dadosPrisma
     },
   });
+
+  await insereCache(`sessao:token:${jti}`, { jti, usuarioId: payload.usuarioId }, { expiresAt: exp });
 
   (await cookies()).set({
     name: COOKIE_NAME,
@@ -95,33 +98,20 @@ export const verificaSessao = async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
-    if (!token) {
-      throw new SessaoError(
-        SessaoErrorType.USUARIO_NAO_LOGADO,
-        "Usuário não logado."
-      );
-    }
+    if (!token)
+      throw new SessaoError(SessaoErrorType.USUARIO_NAO_LOGADO, "Usuário não logado.");
+
 
     const { payload } = await descriptografaToken(token);
     const authPayload = payload as AuthPayload;
-    const sessaoValida = await prisma.sessao.findUnique({
-      where: {
-        revokedAt: null,
-        sid: authPayload.jti
-      },
-      select: {
-        id: true
-      }
-    }) !== null;
 
-    if (sessaoValida) {
+    const resultado = await obtemCache(`sessao:token:${authPayload.jti}`);
+
+    if (resultado) {
       return authPayload
     }
 
-    throw new SessaoError(
-      SessaoErrorType.TOKEN_INVALIDO,
-      "Token inválido."
-    );
+    throw new SessaoError(SessaoErrorType.TOKEN_INVALIDO, "Token inválido.");
   } catch (error: unknown) {
     if (error instanceof SessaoError) {
       throw error;
@@ -129,8 +119,6 @@ export const verificaSessao = async () => {
     throw error;
   }
 }
-
-
 
 // Excluir sessão (apagar cookie)
 export const deletaSessao = async () => {
@@ -156,6 +144,9 @@ export const deletaSessao = async () => {
       sid: true
     }
   });
+
+  await removeCache(`sessao:token:${payloadAuth.jti}`);
+
   limpaTokenCookie();
 }
 
@@ -188,7 +179,6 @@ export const retornaSessaoUsuario = async () => {
   } catch (error) {
     return null
   }
-
 }
 
 export const retornaPayloadSemDescriptografar = async () => {
@@ -196,15 +186,11 @@ export const retornaPayloadSemDescriptografar = async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
     if (!token) {
-      throw new SessaoError(
-        SessaoErrorType.USUARIO_NAO_LOGADO,
-        "Usuário não logado."
-      );
+      return null;
     }
 
-    const payload  = await decodeJwt(token);
+    const payload = await decodeJwt(token);
     return payload as AuthPayload;
-
   } catch (error) {
     return null
   }

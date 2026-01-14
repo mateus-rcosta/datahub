@@ -3,21 +3,19 @@ import { ApiError } from "./api-error";
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface ApiRequestOptions {
-    path: string;
-    method?: HttpMethod;
-    body?: unknown;
-    token?: string;
-    credentials?: RequestCredentials;
-    query?: Record<string, string | number | boolean | undefined | null>;
-    extraHeaders?: Record<string, string>;
-    expectEmptyResponse?: boolean;
+  path: string;
+  method?: HttpMethod;
+  body?: unknown;
+  token?: string;
+  credentials?: RequestCredentials;
+  query?: Record<string, string | number | boolean | undefined | null>;
+  extraHeaders?: Record<string, string>;
+  expectEmptyResponse?: boolean;
 }
 
 /**
  * apiRequest - wrapper genérico para fetch
- * - Sempre retorna ApiSuccesso<T> | ApiFalha
- * - Não lança para erros HTTP (4xx/5xx) — retorna ApiFalha
- * - Lança somente em casos extremos de rede (opcionalmente capturáveis)
+ * - Lança erros HTTP (4xx/5xx) e de rede
  */
 export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<T> {
   const {
@@ -62,7 +60,7 @@ export async function apiRequest<T = unknown>(opts: ApiRequestOptions): Promise<
   let parsed;
   try {
     parsed = await res.json();
-  } catch {}
+  } catch { }
 
   if (res.ok) {
     if (expectEmptyResponse) {

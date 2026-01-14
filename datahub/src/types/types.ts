@@ -1,4 +1,6 @@
-import { upchatSchema } from "@/features/integracao/schema/integracao";
+import { ixcSchema, upchatSchema, wifeedSchema } from "@/features/integracao/schema/integracao";
+import { upchatHealthcheck } from "@/features/integracao/services/healthchecks/upchat-healthchek";
+import { wifeedHealthcheck } from "@/features/integracao/services/healthchecks/wifeed-healthcheck";
 import { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
 import { JWTPayload } from "jose";
 import z from "zod";
@@ -93,12 +95,15 @@ export interface PostCliente {
 }
 
 // Integracao
+export type IntegracaoNome = "UPCHAT" | "WIFEED" | "IXC";
+
 export interface Integracao<IntegracaoDados> {
   id: number;
-  nome: string;
+  nome: IntegracaoNome;
   config: IntegracaoDados;
   status: boolean;
   updatedAt?: string | Date | null;
+  configurada: boolean;
 }
 
 export interface IntegracaoJSONBUpchat {
@@ -109,9 +114,16 @@ export interface IntegracaoJSONBUpchat {
 }
 
 export interface IntegracaoJSONBIXC {
-  token: string;
+  url: string;
+  login: string;
+  senha: string;
 }
 
+export interface IntegracaoJSONBWiFeed {
+  url: string;
+  clientId: string;
+  clientSecret: string;
+}
 
 export interface IntegracaoJSONBUpchatTemplate{
   id: number;
@@ -120,18 +132,27 @@ export interface IntegracaoJSONBUpchatTemplate{
   tipo: 'MARKETING' | 'UTILITY';
 }
 
-export type IntegracaoDados = IntegracaoJSONBUpchat | IntegracaoJSONBIXC;
+export type IntegracaoDados = IntegracaoJSONBUpchat | IntegracaoJSONBIXC | IntegracaoJSONBWiFeed;
 
-type IntegracaoStrategy = {
+export enum IntegracaoHealthcheck {
+  HEALTHY = "healthy",
+  UNHEALTHY = "unhealthy",
+}
+export interface HealthchekResultado {
+  status: IntegracaoHealthcheck;
+  mensagem: string;
+}
+
+export interface IntegracaoHealthcheckContexto {
+  config: unknown;
+}
+
+export type IntegracaoStrategy = {
+    label: string;
+    descricao: string;
     schema: z.ZodSchema;
+    healthcheck: (config: IntegracaoHealthcheckContexto) => Promise<IntegracaoHealthcheck>;
     camposSensiveis: readonly string[];
-};
-
-export const INTEGRACOES: Record<string, IntegracaoStrategy> = {
-    Upchat: {
-        schema: upchatSchema,
-        camposSensiveis: ['apiKey'],
-    },
 };
 
 // IntegracaoHealtchek 
@@ -142,7 +163,11 @@ export interface IntegracaoHealthcheckUpchat {
   enabled: boolean; // se habilitado ou não por comando de admin
 }
 
-export interface HealthchekResponse {
-  status: "unhealthy" | "healthy";
-  mensagem: string;
+// login e senha, retorna o token
+export interface IntegracaoHealthcheckWifeed{
+  status: 'SUCESS' | 'ERROR',
+  response: {
+    token: string; // jwt
+    expire: number; // data de expiracao em seg
+  }
 }

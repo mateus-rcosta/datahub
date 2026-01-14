@@ -17,14 +17,18 @@ import { getQueryClient } from "@/lib/react-query";
 import z from "zod";
 
 export const UpchatForm = forwardRef<FormHandle, BaseFormProps>(
-    ({ config, integracaoId, onStatusChange }, ref) => {
+    ({ config, integracaoNome, onStatusChange }, ref) => {
         const queryClient = getQueryClient();
+        
+        const configTratada = config as z.input<typeof upchatSchema>;
 
         const form = useForm<z.input<typeof upchatSchema>>({
             mode: "onChange",
             resolver: zodResolver(upchatSchema),
             defaultValues: {
-                ...config as z.input<typeof upchatSchema>,
+                url: configTratada?.url || "",
+                queueId: configTratada?.queueId || 0,
+                templates: configTratada?.templates || [],
                 apiKey: "",
             },
         });
@@ -37,13 +41,26 @@ export const UpchatForm = forwardRef<FormHandle, BaseFormProps>(
             onSuccess: () => {
                 toast.success("Configuração salva com sucesso.");
                 const parsedConfig = upchatSchema.parse(form.getValues());
-                queryClient.setQueryData<Integracao<IntegracaoDados>>(["integracoes", integracaoId], (old) => {
+                queryClient.setQueryData<Integracao<IntegracaoDados>>(["integracoes", integracaoNome], (old) => {
                     if (!old) return old;
                     return {
                         ...old,
                         config: parsedConfig,
                     }
 
+                });
+                queryClient.setQueryData<Integracao<IntegracaoDados>[]>(["integracoes"], (old) => {
+                    if (!old) return old;
+                    return old.map((integracao) => {
+                        if (integracao.nome === integracaoNome) {
+                            return {
+                                ...integracao,
+                                status: integracao.status,
+                                configurada: true,
+                            };
+                        }
+                        return integracao;
+                    });
                 });
             },
         });
@@ -65,7 +82,7 @@ export const UpchatForm = forwardRef<FormHandle, BaseFormProps>(
 
         useImperativeHandle(ref, () => ({
             submit: form.handleSubmit((data) => {
-                execute({ id: integracaoId, config: data });
+                execute({ nome: integracaoNome, config: data });
             }),
         }));
 

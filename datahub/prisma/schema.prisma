@@ -13,7 +13,7 @@ model usuario {
   senha       String        @db.VarChar(60)
   permissoes  Json?         @db.JsonB
   admin       Boolean       @default(false) @db.Boolean
-  ativo       Boolean       @default(true)  @db.Boolean
+  ativo       Boolean       @default(true) @db.Boolean
   createdAt   DateTime      @default(now()) @db.Timestamptz()
   updatedAt   DateTime?     @db.Timestamptz()
   deletedAt   DateTime?     @db.Timestamptz()
@@ -25,14 +25,14 @@ model usuario {
 
 model sessao {
   id        Int       @id @default(autoincrement())
-  sid       String    @unique @db.Uuid 
+  sid       String    @unique @db.Uuid
   dados     Json      @db.JsonB
   createdAt DateTime  @default(now()) @db.Timestamptz()
   expiredAt DateTime? @db.Timestamptz()
   revokedAt DateTime? @db.Timestamptz()
   usuarioId String    @db.Uuid
 
-  usuario   usuario   @relation(fields: [usuarioId], references: [id])
+  usuario usuario @relation(fields: [usuarioId], references: [id])
 
   @@map("sessoes")
 }
@@ -46,31 +46,41 @@ model baseDeDados {
   deletedAt DateTime? @db.Timestamptz()
   usuarioId String?   @db.Uuid
 
-  usuario   usuario?  @relation(fields: [usuarioId], references: [id])
+  usuario  usuario?  @relation(fields: [usuarioId], references: [id])
   clientes cliente[]
 
   @@map("basesDeDados")
 }
 
 model cliente {
-  id String @id @default(uuid(7)) @db.Uuid
-  dados Json @db.JsonB
-  validacao Json? @db.JsonB 
-  createdAt DateTime @default(now()) @db.Timestamptz()
-  updatedAt DateTime? @db.Timestamptz()
-  deletedAt DateTime? @db.Timestamptz()
-  baseDeDadosId String @db.Uuid()
-  
+  id            String    @id @default(uuid(7)) @db.Uuid
+  dados         Json      @db.JsonB
+  validacao     Json?     @db.JsonB
+  createdAt     DateTime  @default(now()) @db.Timestamptz()
+  updatedAt     DateTime? @db.Timestamptz()
+  deletedAt     DateTime? @db.Timestamptz()
+  baseDeDadosId String    @db.Uuid()
+
   baseDeDados baseDeDados @relation(fields: [baseDeDadosId], references: [id])
-  
+
   @@map("clientes")
 }
 
 model integracao {
-  id Int @db.Integer @default(autoincrement()) @id
-  nome String @db.VarChar(100)
-  status Boolean @db.Boolean @default(false) 
-  config Json @db.JsonB 
+  id        Int       @id @default(autoincrement()) @db.Integer
+  nome      String    @db.VarChar(100)
+  status    Boolean   @default(false) @db.Boolean
+  config    Json      @db.JsonB
   updatedAt DateTime? @db.Timestamptz()
+
   @@map("integracoes")
+}
+
+model cache {
+  chave     String    @id @db.VarChar(255)
+  dados     Json      @db.JsonB
+  expiresAt DateTime? @db.Timestamptz()
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+
+  @@index([expiresAt])
 }

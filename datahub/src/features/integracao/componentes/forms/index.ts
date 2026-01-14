@@ -1,8 +1,12 @@
 import { IntegracaoDados } from "@/types/types";
 import { UpchatForm } from "./upchat-form";
+import { WifeedForm } from "./wifeed-form";
+import { IxcForm } from "./ixc-form";
 
 export const integrationForms = {
-    "Upchat": UpchatForm,
+    "UPCHAT": UpchatForm,
+    "WIFEED": WifeedForm,
+    "IXC": IxcForm
 } as const;
 
 export interface FormHandle {
@@ -18,6 +22,6 @@ export interface FormStatus {
 
 export interface BaseFormProps {
     config: IntegracaoDados;
-    integracaoId: number;
+    integracaoNome: "UPCHAT" | "WIFEED" | "IXC";
     onStatusChange: (status: FormStatus) => void;
 }

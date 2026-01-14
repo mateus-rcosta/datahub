@@ -1,17 +1,31 @@
 import { prisma } from "@/lib/database";
+import { INTEGRACOES } from "../integracoes";
 
 export const retornaIntegracoes = async () => {
-    const integracoes = await prisma.integracao.findMany({
-        orderBy: {
-            status: 'asc'
-        },
+    const configuradas = await prisma.integracao.findMany({
         select: {
             id: true,
-            status: true,
             nome: true,
-            updatedAt: true
+            status: true,
+            updatedAt: true,
         }
     });
 
+    const porNome = Object.fromEntries(
+        configuradas.map(i => [i.nome, i])
+    );
+
+    const integracoes = Object.keys(INTEGRACOES).map((nome) => {
+        const existente = porNome[nome];
+
+        return {
+            nome,
+            id: existente?.id ?? null,
+            status: existente?.status ?? false,
+            configurada: !!existente,
+            updatedAt: existente?.updatedAt ?? null,
+        };
+    });
+
     return { integracoes };
-}
+};

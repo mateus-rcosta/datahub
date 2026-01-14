@@ -3,7 +3,6 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { UsuarioErrorType } from "../../exceptions/usuario-error";
 import { alteraStatusUsuarioAction } from "../../actions/altera-status-usuario";
-import { getQueryClient } from "@/lib/react-query";
 import { useAcaoAutenticada } from "@/hooks/use-acao-autenticada";
 
 type Props = {
@@ -19,12 +18,10 @@ const MESSAGENS_ERRO: Partial<Record<UsuarioErrorType, string>> = {
 
 export default function SwitchUsuario({ id, ativo, nome }: Props) {
 
-    const query = getQueryClient();
 
     const { execute, isExecuting } = useAcaoAutenticada(alteraStatusUsuarioAction, {
         invalidateQueries: [["usuarios"]],
         onSuccess: () => {
-            query.invalidateQueries({ queryKey: ['usuarios'] });
             toast.success(`Alterado o status com sucesso do usuário: ${nome}`);
         },
         onError: ({ serverError, validationErrors }) => {

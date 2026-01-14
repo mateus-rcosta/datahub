@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Settings } from "lucide-react";
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { useRetornaIntegracao } from "../api/retorna-integracao-api";
@@ -11,9 +11,11 @@ import { useVerificaHealthcheck } from "../api/verifica-healthchek-api";
 import { IntegracaoErrorType } from "../exceptions/integracao-error";
 import { FormHandle, FormStatus, integrationForms } from "./forms";
 import { ApiError } from "@/lib/api-error";
+import { IntegracaoNome } from "@/types/types";
 
 interface CardConfigurarProps {
-    id: number;
+    nome: string;
+    codigo: IntegracaoNome;
 }
 
 const MENSAGENS_ERRO: Partial<Record<IntegracaoErrorType, string>> = {
@@ -22,10 +24,9 @@ const MENSAGENS_ERRO: Partial<Record<IntegracaoErrorType, string>> = {
     [IntegracaoErrorType.INTEGRACAO_NAO_SUPORTADA]: "Integração não suportada."
 } as const;
 
-
-export default function CardConfigurar({ id }: CardConfigurarProps) {
+export default function CardConfigurar({ nome, codigo }: CardConfigurarProps) {
     const [open, setOpen] = useState(false);
-    const { data, isLoading, error } = useRetornaIntegracao(id, open);
+    const { data, isLoading, error } = useRetornaIntegracao(codigo, open);
     const formRef = useRef<FormHandle>(null);
 
     const [formStatus, setFormStatus] = useState<FormStatus>({
@@ -34,7 +35,7 @@ export default function CardConfigurar({ id }: CardConfigurarProps) {
         isExecuting: false,
     });
 
-    const { verificaHealthcheck, error: healthcheckError } = useVerificaHealthcheck();
+    const { verificaHealthcheck } = useVerificaHealthcheck();
 
     const handleSalvar = () => {
         formRef.current?.submit();
@@ -45,23 +46,28 @@ export default function CardConfigurar({ id }: CardConfigurarProps) {
     }, []);
 
     const handleVerificaHealthcheck = async () => {
-        const resultado = await verificaHealthcheck(id);
+        try {
+            const resultado = await verificaHealthcheck(codigo);
 
-        if (resultado.status === "healthy") {
-            toast.success("Healthcheck realizado: integração respondeu com sucesso.");
-            return;
-        }
+            if (resultado.status === "healthy") {
+                toast.success("Healthcheck realizado: integração respondeu com sucesso.");
+                return;
+            }
 
-        if (resultado.status === "unhealthy") {
-            toast.error("Healthcheck realizado: integração respondeu com erro.");
-            return;
-        }
+            if (resultado.status === "unhealthy") {
+                toast.error("Healthcheck realizado: integração respondeu com erro.");
+                return;
+            }
+        } catch (error: unknown) {
+            if (error instanceof ApiError) {
+                toast.error(`Erro ao realizar healthcheck: ${MENSAGENS_ERRO[error.codeError as IntegracaoErrorType] ?? "Erro desconhecido"} `);
+                return;
+            }
 
-        if (error) {
-            toast.error(MENSAGENS_ERRO[error.codeError as IntegracaoErrorType] ?? "Erro interno ao validar healthcheck.");
-            return;
+            toast.error("Erro ao realizar o healthcheck.");
         }
     };
+
     const FormComponent = data ? integrationForms[data.nome as keyof typeof integrationForms] : null;
 
     return (
@@ -76,7 +82,7 @@ export default function CardConfigurar({ id }: CardConfigurarProps) {
                     <DialogHeader className="shrink-0 border-b pb-3">
                         <DialogTitle className="flex items-center gap-2">
                             <Settings className="h-5 w-5 text-muted-foreground" />
-                            {isLoading ? "Carregando..." : `Configurar: ${data?.nome ?? "Erro"}`}
+                            {isLoading ? "Carregando..." : `Configurar: ${data?.nome ? nome : "Erro"}`}
                         </DialogTitle>
                         <p className="text-sm text-muted-foreground text-left">
                             Ajuste os parâmetros da integração conforme necessário.
@@ -96,7 +102,7 @@ export default function CardConfigurar({ id }: CardConfigurarProps) {
                             <FormComponent
                                 ref={formRef}
                                 config={data.config}
-                                integracaoId={id}
+                                integracaoNome={codigo}
                                 onStatusChange={handleStatusChange}
                             />
                         )}

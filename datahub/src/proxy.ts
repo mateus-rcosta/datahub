@@ -15,7 +15,7 @@ const pathPermissoes = {
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  if (publicRoutes.includes(path) || req.headers.get("next-action")) {
+  if (publicRoutes.includes(path)) {
     return NextResponse.next();
   }
 

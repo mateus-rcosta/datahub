@@ -2,49 +2,34 @@
 
 import { prisma } from "@/lib/database";
 import { IntegracaoError, IntegracaoErrorType } from "../exceptions/integracao-error";
-import { IntegracaoHealthcheckUpchat, IntegracaoJSONBUpchat } from "@/types/types";
-import { apiRequest } from "@/lib/api";
-import { upchatSchema } from "../schema/integracao";
-import { desencriptografa } from "@/lib/crypto";
+import { IntegracaoHealthcheck } from "@/types/types";
+import { INTEGRACOES } from "../integracoes";
 
-export const verificaHealthcheck = async (id: number) => {
+export const verificaHealthcheck = async (nome: string) => {
+    const strategy = INTEGRACOES[nome as keyof typeof INTEGRACOES];
+
+    if (!strategy) {
+        throw new IntegracaoError(IntegracaoErrorType.INTEGRACAO_NAO_ENCONTRADA, 'Integração não configurada.');
+    }
 
     const integracao = await prisma.integracao.findFirst({
-        where: { id },
+        where: { nome },
         select: {
             nome: true,
             config: true
         }
     });
 
-    if (!integracao) throw new IntegracaoError(IntegracaoErrorType.INTEGRACAO_NAO_ENCONTRADA, 'Integração nao encontrada.');
-
-    if (integracao.nome === 'Upchat') {
-        const config = upchatSchema.parse(integracao.config);
-
-        if (!config.apiKey) throw new IntegracaoError(IntegracaoErrorType.INTEGRACAO_CONFIG_INVALIDA, 'Configuração inválida da integração.');
-        console.log(desencriptografa(config.apiKey));
-        console.log(config.queueId);
-        console.log(config.url);
-        const resultado = await apiRequest<IntegracaoHealthcheckUpchat>({
-            path: `${config.url}/int/getQueueStatus`,
-            method: 'POST',
-            body: { queueId: config.queueId, apiKey: desencriptografa(config.apiKey) },
-            credentials: 'omit',
-        });
-
-        if (resultado.connected && resultado.authenticated && resultado.enabled) {
-            await prisma.integracao.update({
-                where: { id },
-                data: {
-                    status: true,
-                    updatedAt: new Date()
-                }
-            });
-            return "healthy";
-        }
-        return "unhealthy";
+    if (!integracao) {
+        throw new IntegracaoError(IntegracaoErrorType.INTEGRACAO_CONFIG_INVALIDA, 'Integração ainda não configurada.');
     }
 
-    return "unhealthy";
+    const resultado = await strategy.healthcheck({ config: integracao.config });
+    
+    if (resultado === IntegracaoHealthcheck.HEALTHY) {
+        await prisma.integracao.updateMany({ where: { nome }, data: { status: true } });
+        return { status: IntegracaoHealthcheck.HEALTHY, mensagem: "Integração ativa." };
+    }
+
+    return { status: IntegracaoHealthcheck.UNHEALTHY, mensagem: "Integração nao ativa." };
 }

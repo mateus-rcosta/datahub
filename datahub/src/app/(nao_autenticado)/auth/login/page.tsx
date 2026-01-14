@@ -48,9 +48,7 @@ export default function PageLogin() {
             }
 
             if (error.serverError) {
-                const errorMessage = ERROR_MESSAGES[error.serverError as AuthErrorType]
-                    || "Erro desconhecido";
-
+                const errorMessage = ERROR_MESSAGES[error.serverError.code as AuthErrorType] || "Erro desconhecido";
                 form.setError("root", {
                     type: "manual",
                     message: errorMessage,

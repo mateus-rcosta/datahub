@@ -1,7 +1,15 @@
 import z from "zod";
 
 export const ixcSchema = z.object({
-  token: z.string().min(1, "Token obrigatório"),
+  url: z.url("URL válida é necessária"),
+  login: z.string().min(1, "Login obrigatório"),
+  senha: z.string().min(1, "Senha obrigatória"),
+});
+
+export const wifeedSchema = z.object({
+  url: z.url("URL válida é necessária"),
+  clientId: z.string().min(1, "clientId obrigatório"),
+  clientSecret: z.string().min(1, "clientSecret obrigatório")
 });
 
 const templateSchema = z.object({
@@ -37,7 +45,7 @@ export const baseIntegracaoSchema = z.object({
   ]),
 });
 
-export const integracaoSchemaId = z.object({
-  id: z.number(),
-  config: z.union([ixcSchema, upchatSchema]),
+export const integracaoSchema = z.object({
+  nome: z.enum(['WIFEED', 'UPCHAT', 'IXC']),
+  config: z.union([ixcSchema, upchatSchema, wifeedSchema]),
 });

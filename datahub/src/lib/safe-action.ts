@@ -10,29 +10,27 @@ export const actionClient = createSafeActionClient({
   handleServerError(e) {
 
     if (e instanceof AuthError || e instanceof UsuarioError || e instanceof SessaoError || e instanceof ClienteError || e instanceof IntegracaoError) {
-      return {code: e.code, message: e.message};
+      return { code: e.code, message: e.message };
     }
 
-    return AuthErrorType.ERRO_INTERNO;
+    return {code: "SERVER_ERROR", message: "Erro interno do servidor."};
   },
 });
 
 export const authenticatedAction = actionClient.use(async ({ next }) => {
-  try {
-    const usuario = await retornaSessaoUsuario();
-    if (!usuario)
-      throw new SessaoError(SessaoErrorType.USUARIO_NAO_LOGADO, "Usuário não autenticado.");
 
-    return next({
-      ctx: {
-        usuarioId: usuario.usuarioId,
-        email: usuario.email,
-        admin: usuario.admin,
-        permissoes: usuario.permissoes,
-      },
-    });
-  } catch (error) {
+  const usuario = await retornaSessaoUsuario();
+  if (!usuario)
     throw new SessaoError(SessaoErrorType.USUARIO_NAO_LOGADO, "Usuário não autenticado.");
-  }
+
+  return next({
+    ctx: {
+      usuarioId: usuario.usuarioId,
+      email: usuario.email,
+      admin: usuario.admin,
+      permissoes: usuario.permissoes,
+    },
+  });
+
 });
 
